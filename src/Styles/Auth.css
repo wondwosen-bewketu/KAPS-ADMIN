@@ -1,0 +1,54 @@
+.Auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 4rem;
+  position: relative;
+}
+
+.a-left {
+  flex: 1; /* Take up more space */
+}
+
+.Webname {
+  padding: 3rem;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.Webname > h1 {
+  font-size: 9rem;
+  color: white;
+}
+
+/* right side */
+
+.authForm {
+  background-color: #ffffff; /* White background */
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.authForm > div {
+  margin: 1rem 0;
+}
+
+
+
+/* Input Styles */
+.infoInput {
+  width: 100%;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  font-size: 1.2rem;
+  transition: border-color 0.3s;
+}
+
+.infoInput:focus {
+  border-color: #6200ea;
+}

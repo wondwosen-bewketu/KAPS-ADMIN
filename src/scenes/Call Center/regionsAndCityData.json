@@ -1,0 +1,120 @@
+{
+  "regions": [
+    {
+      "name": "Addis Ababa",
+      "cities": ["Addis Ababa"]
+    },
+    {
+      "name": "Amhara",
+      "cities": [
+        "Bahir Dar",
+        "Gonder",
+        "Dessie",
+        "Debre Birhan",
+        "Debre Mark'os",
+        "Kombolcha",
+        "Weldiya",
+        "Debre Tabor",
+        "Debre Mark'os",
+        "Kobo",
+        "Dangila",
+        "Mota"
+      ]
+    },
+    {
+      "name": "Oromia",
+      "cities": [
+        "Adama",
+        "Nekemte",
+        "Jimma",
+        "Bishoftu",
+        "Shashamane",
+        "Arsi Negele",
+        "Sebeta",
+        "Burayu",
+        "Ambo",
+        "Batu",
+        "Adwa",
+        "Waliso",
+        "Mojo",
+        "Dembi Dolo",
+        "Fiche",
+        "Bule Hora Town",
+        "Bale Robe",
+        "Goba"
+      ]
+    },
+    {
+      "name": "Tigray",
+      "cities": [
+        "Mekelle",
+        "Adigrat",
+        "Axum",
+        "Shire (Inda Selassie)",
+        "Aksum",
+        "Mekelle"
+      ]
+    },
+    {
+      "name": "SNNPR",
+      "cities": [
+        "Sodo",
+        "Arba Minch",
+        "Hosaena",
+        "Dilla",
+        "Areka",
+        "Boditi",
+        "Yirgalem",
+        "Butajira",
+        "Sawla",
+        "Mizan Teferi",
+        "Welkite",
+        "Negele Borana",
+        "Alaba Kulito",
+        "Bonga",
+        "Dimtu",
+        "Gedeo",
+        "Hadiya",
+        "Chiro",
+        "Tepi",
+        "Durame",
+        "Welkite",
+        "Meki",
+        "Alamata",
+        "Jinka",
+        "Dimtu",
+        "Agaro",
+        "Metu"
+      ]
+    },
+    {
+      "name": "Dire Dawa",
+      "cities": ["Dire Dawa"]
+    },
+    {
+      "name": "Sidama",
+      "cities": ["Awassa", "Yirgalem"]
+    },
+    {
+      "name": "Somali",
+      "cities": ["Jijiga", "Gode", "Degehabur"]
+    },
+    {
+      "name": "Harar",
+      "cities": ["Harar"]
+    },
+    {
+      "name": "Benishangul-Gumuz",
+      "cities": ["Assosa"]
+    },
+    {
+      "name": "Gambela",
+      "cities": ["Gambela"]
+    },
+
+    {
+      "name": "Somali",
+      "cities": ["Gode", "Degehabur"]
+    }
+  ]
+}
