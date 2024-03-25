@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {
   Table,
@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogTitle,
   CircularProgress,
+  TablePagination,
 } from "@mui/material";
 import { CheckCircleOutline, CancelOutlined } from "@mui/icons-material";
 import { ToastContainer, toast } from "react-toastify";
@@ -30,6 +31,8 @@ const AdminApproval = () => {
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [actionType, setActionType] = useState(""); // Track the action type (approve or reject)
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     fetchProducts();
@@ -114,12 +117,29 @@ const AdminApproval = () => {
     },
   });
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Calculate the index of the first and last item of the current page
+  const indexOfLastProduct = (page + 1) * rowsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - rowsPerPage;
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <div>
         <h2>Admin Approval</h2>
         <TableContainer component={Paper}>
-          <Table>
+          <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Product Name</TableCell>
@@ -129,13 +149,12 @@ const AdminApproval = () => {
                 <TableCell>Description</TableCell>
                 <TableCell>Agent Phone</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Approved/Rejected By</TableCell>{" "}
-                {/* Added column for admin's full name */}
+                <TableCell>Approved/Rejected By</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {products.map((product) => (
+              {currentProducts.map((product) => (
                 <TableRow key={product._id}>
                   <TableCell>{product.productname}</TableCell>
                   <TableCell>{product.productprice}</TableCell>
@@ -144,8 +163,7 @@ const AdminApproval = () => {
                   <TableCell>{product.productdescription}</TableCell>
                   <TableCell>{product.agentphone}</TableCell>
                   <TableCell>{product.approvalStatus}</TableCell>
-                  <TableCell>{product.adminApprovalName}</TableCell>{" "}
-                  {/* Display admin's full name */}
+                  <TableCell>{product.adminApprovalName}</TableCell>
                   <TableCell>
                     {[
                       "Admin Approved",
@@ -197,6 +215,16 @@ const AdminApproval = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          component="div"
+          count={products.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
         <Dialog open={openConfirmation} onClose={handleCloseConfirmation}>
           <DialogTitle>Confirm Action</DialogTitle>
           <DialogContent>
@@ -227,6 +255,7 @@ const AdminApproval = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
         <ToastContainer
           position="bottom-right"
           autoClose={3000}

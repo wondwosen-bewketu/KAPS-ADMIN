@@ -2,7 +2,19 @@
   "regions": [
     {
       "name": "Addis Ababa",
-      "cities": ["Addis Ababa"]
+      "cities": [
+        "Bole",
+        "Yeka",
+        "Ledeta",
+        "Lemikura",
+        "Arada",
+        "Addis Ketema",
+        "Akaky Kaliti",
+        "Gullele",
+        "Kirkos",
+        "Kolfe Kerani",
+        "Nifas Silk-Lafto"
+      ]
     },
     {
       "name": "Amhara",

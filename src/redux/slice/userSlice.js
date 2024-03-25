@@ -56,16 +56,26 @@ export const postUserAsync = createAsyncThunk(
   }
 );
 
-// userSlice.js
 export const postAgentAsync = createAsyncThunk(
   "user/postAgent",
-  async (formData) => {
+  async (formData, { rejectWithValue }) => {
     try {
       const response = await postAgent(formData);
       return response;
     } catch (error) {
-      console.error("Error posting agent:", error.message);
-      throw new Error("Failed to post agent");
+      if (error.response) {
+        // Server responded with an error
+        console.error("Error posting agent:", error.response.data);
+        return rejectWithValue(error.response.data);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error("Error posting agent: No response received");
+        throw new Error("Failed to post agent: No response received");
+      } else {
+        // Something happened in setting up the request that triggered an error
+        console.error("Error posting agent:", error.message);
+        throw new Error("Failed to post agent");
+      }
     }
   }
 );

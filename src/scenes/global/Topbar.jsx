@@ -30,6 +30,9 @@ const Topbar = () => {
   const user = useSelector(selectUser);
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const handleAddProduct = () => {
+    navigate(`/setting`);
+  };
   const handleLogout = () => {
     dispatch(logout());
     toast.success("Logout successful"); // Display success toast for logout
@@ -58,10 +61,7 @@ const Topbar = () => {
 
       {/* ICONS */}
       <Box display="flex" color="#d7a022" alignItems="center">
-        <IconButton
-          onClick={handleUserIconClick}
-          sx={{ color: "#d7a022" }}
-        >
+        <IconButton onClick={handleUserIconClick} sx={{ color: "#d7a022" }}>
           <PersonOutlinedIcon />
         </IconButton>
 
@@ -90,7 +90,7 @@ const Topbar = () => {
             <List>
               {user && (
                 <>
-                  <ListItem>
+                  <ListItem onClick={handleAddProduct}>
                     <ListItemText primary={`Name: ${user.fullName}`} />
                   </ListItem>
                   <ListItem>

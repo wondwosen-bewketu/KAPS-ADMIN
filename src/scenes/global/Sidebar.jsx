@@ -34,9 +34,10 @@ const useStyles = makeStyles((theme) => ({
     filter: theme.palette.mode === "dark" ? "invert(100%)" : "none",
   },
   listItem: {
-    color: theme.palette.common.white,
+    color: "dark",
+
     "&:hover": {
-      backgroundColor: theme.palette.secondary.main,
+      backgroundColor: "d7a022",
     },
   },
   listItemText: {
@@ -46,7 +47,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "3.5rem", // Adjust the font size for icons
   },
 }));
-
 const Sidebar = ({ userRole }) => {
   const classes = useStyles();
   const [selected, setSelected] = useState("Dashboard");
@@ -270,7 +270,7 @@ const Sidebar = ({ userRole }) => {
               button
             >
               <ListItemIcon style={{ color: "#d7a022" }}>
-                <AssessmentIcon />
+                <ListAltIcon />
               </ListItemIcon>
               <ListItemText primary="Reports" />
             </ListItem>
@@ -312,6 +312,19 @@ const Sidebar = ({ userRole }) => {
               </ListItemIcon>
               <ListItemText primary="Add New Agent" />
             </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("Agent Profile", "/agentLogin")}
+              selected={selected === "Agent Profile"}
+              button
+            >
+              <ListItemIcon style={{ color: "#d7a022" }}>
+                <PersonAddIcon />
+              </ListItemIcon>
+              <ListItemText primary="Agent Profile" />
+            </ListItem>
+
             <ListItem
               className={classes.listItem}
               onClick={() => handleItemClick("Add Item", "/addItem")}
@@ -323,6 +336,19 @@ const Sidebar = ({ userRole }) => {
               </ListItemIcon>
               <ListItemText primary="Add Item" />
             </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("Wearhouse", "/wearhouse")}
+              selected={selected === "Wearhouse"}
+              button
+            >
+              <ListItemIcon style={{ color: "#d7a022" }}>
+                <AddCircleOutlineIcon />
+              </ListItemIcon>
+              <ListItemText primary="Wearhouse" />
+            </ListItem>
+
             <ListItem
               className={classes.listItem}
               onClick={() => handleItemClick("Add Product", "/addProduct")}

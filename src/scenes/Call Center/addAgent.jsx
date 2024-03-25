@@ -4,23 +4,77 @@ import { postAgentAsync } from "../../redux/slice/userSlice";
 import {
   TextField,
   Button,
-  Checkbox,
-  FormControlLabel,
   Container,
   Grid,
   Paper,
   Typography,
-  Input,
-  InputLabel,
-  IconButton,
   MenuItem,
   Select,
   FormControl,
+  InputLabel,
 } from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import regionsAndCitiesData from "./regionsAndCityData.json";
+import { styled } from "@mui/system";
+
+const StyledContainer = styled(Container)({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  minHeight: "100vh",
+  marginTop: "-50px", // Negative margin-top
+});
+
+const StyledPaper = styled(Paper)({
+  padding: "30px",
+  width: "800px",
+  borderRadius: "10px",
+  boxShadow: "0 4px 20px rgba(0,0,0,0.1)", // Box shadow for a raised effect
+});
+
+const StyledTypography = styled(Typography)({
+  marginBottom: "20px",
+  textAlign: "center",
+});
+
+const StyledFormControl = styled(FormControl)({
+  width: "100%",
+  marginBottom: "20px",
+});
+
+const StyledTextField = styled(TextField)({
+  "& .MuiInputBase-root": {
+    borderRadius: "20px",
+    background: "rgba(255, 255, 255, 0.8)",
+  },
+  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#4CAF50",
+  },
+});
+
+const StyledSelect = styled(Select)({
+  borderRadius: "20px",
+  background: "rgba(255, 255, 255, 0.8)",
+});
+
+const StyledButton = styled(Button)({
+  marginTop: "20px",
+  width: "100%",
+  borderRadius: "20px",
+  padding: "12px",
+  fontWeight: "bold",
+  fontSize: "16px",
+  letterSpacing: "1px",
+  textTransform: "uppercase",
+  background: "#d7a022",
+  color: "white",
+  boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
+  transition: "background-color 0.3s ease",
+  "&:hover": {
+    background: "linear-gradient(45deg, #FF8E53 30%, #FE6B8B 90%)",
+  },
+});
 
 const AgentForm = () => {
   const dispatch = useDispatch();
@@ -30,15 +84,14 @@ const AgentForm = () => {
     phone: "",
     email: "",
     password: "",
-    restriction: true,
-    img: null,
-    files: null,
     region: "",
     city: "",
-    location: "",
+    woreda: "", // Added woreda field
     bankName: "",
     accNumber: "",
   });
+
+  const [woredaOptions, setWoredaOptions] = useState([]); // State for woreda options
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,12 +100,27 @@ const AgentForm = () => {
       setFormData({
         ...formData,
         [name]: value,
+        city: "", // Reset city when region changes
+        woreda: "", // Reset woreda when region changes
+        location: "", // Reset location when region changes
       });
+      setWoredaOptions([]); // Clear woreda options when region changes
     } else if (name === "city") {
+      const selectedCity = regionsAndCitiesData.regions
+        .find((item) => item.name === formData.region)
+        ?.cities.find((city) => city === value);
       setFormData({
         ...formData,
         city: value,
-        location: `${formData.region},${value}`,
+        woreda: "", // Reset woreda when city changes
+        location: `${formData.region},${value}`, // Update location with region and city
+      });
+      setWoredaOptions(Array.from({ length: 20 }, (_, i) => String(i + 1))); // Assuming woredas are from 1 to 20
+    } else if (name === "woreda") {
+      setFormData({
+        ...formData,
+        [name]: value,
+        location: `${formData.region},${formData.city},${value}`, // Update location with region, city, and woreda
       });
     } else {
       setFormData({
@@ -62,131 +130,81 @@ const AgentForm = () => {
     }
   };
 
-  const handleCheckboxChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.checked,
-    });
-  };
-
-  const handleImgChange = (e) => {
-    setFormData({
-      ...formData,
-      img: e.target.files[0],
-    });
-  };
-
-  const handleFileChange = (e) => {
-    setFormData({
-      ...formData,
-      files: e.target.files[0],
-    });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formDataWithFile = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === "img" || key === "files") {
-        formDataWithFile.append(key, value);
+    try {
+      await dispatch(postAgentAsync(formData));
+      toast.success("Agent Registered successfully!");
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        password: "",
+        region: "",
+        city: "",
+        woreda: "",
+        bankName: "",
+        accNumber: "",
+      });
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      if (error.payload) {
+        // Display the specific error message received from the server
+        toast.error(
+          error.payload.message || "Failed to Register Agent. Please try again."
+        );
       } else {
-        formDataWithFile.append(key, value.toString());
+        // Fallback error message
+        toast.error("Failed to Register Agent. Please try again.");
       }
-    });
-
-    dispatch(postAgentAsync(formDataWithFile));
-
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      password: "",
-      restriction: true,
-      img: null,
-      files: null,
-      region: "",
-      city: "",
-      location: "",
-      bankName: "",
-      accNumber: "",
-    });
-
-    toast.success("Form submitted successfully!");
+    }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Paper
-        elevation={3}
-        sx={{
-          padding: 3,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography component="h1" variant="h5">
-          Agent Form
-        </Typography>
-        <form onSubmit={handleSubmit} style={{ width: "100%", marginTop: 2 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <InputLabel
-                htmlFor="img-upload"
-                style={{
-                  border: "1px solid #ced4da",
-                  borderRadius: "4px",
-                  padding: "8px",
-                }}
-              >
-                <Input
-                  id="img-upload"
-                  type="file"
-                  name="img"
-                  fullWidth
-                  onChange={handleImgChange}
-                  required
-                  style={{ display: "none" }}
-                />
-                <IconButton color="primary" component="span">
-                  <CloudUploadIcon />
-                </IconButton>
-                Upload Image
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
+    <StyledContainer>
+      <StyledPaper elevation={3}>
+        <StyledTypography variant="h5">Agent Form</StyledTypography>
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={4}>
+            <Grid item xs={6}>
+              <StyledTextField
                 label="Name"
                 name="name"
                 fullWidth
                 value={formData.name}
                 onChange={handleChange}
                 required
+                variant="outlined"
+                color="primary"
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
+            <Grid item xs={6}>
+              <StyledTextField
                 label="Phone"
                 name="phone"
                 fullWidth
                 value={formData.phone}
                 onChange={handleChange}
                 required
+                variant="outlined"
+                color="primary"
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
+            <Grid item xs={6}>
+              <StyledTextField
                 label="Email"
                 name="email"
                 fullWidth
                 value={formData.email}
                 onChange={handleChange}
                 required
+                variant="outlined"
+                color="primary"
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
+            <Grid item xs={6}>
+              <StyledTextField
                 label="Password"
                 name="password"
                 type="password"
@@ -194,114 +212,115 @@ const AgentForm = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                variant="outlined"
+                color="primary"
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                label="Bank Name"
-                name="bankName"
-                fullWidth
-                value={formData.bankName}
-                onChange={handleChange}
-                required
-              />
+              <Grid container spacing={2}>
+                <Grid item xs={4}>
+                  <StyledFormControl>
+                    <InputLabel htmlFor="region">Region</InputLabel>
+                    <StyledSelect
+                      id="region"
+                      name="region"
+                      fullWidth
+                      value={formData.region}
+                      onChange={handleChange}
+                    >
+                      {regionsAndCitiesData.regions.map((region) => (
+                        <MenuItem key={region.name} value={region.name}>
+                          {region.name}
+                        </MenuItem>
+                      ))}
+                    </StyledSelect>
+                  </StyledFormControl>
+                </Grid>
+                <Grid item xs={4}>
+                  <StyledFormControl>
+                    <InputLabel htmlFor="city">City</InputLabel>
+                    <Select
+                      id="city"
+                      name="city"
+                      fullWidth
+                      value={formData.city}
+                      onChange={handleChange}
+                      required
+                    >
+                      {regionsAndCitiesData.regions
+                        .find((item) => item.name === formData.region)
+                        ?.cities.map((city) => (
+                          <MenuItem key={city} value={city}>
+                            {city}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                  </StyledFormControl>
+                </Grid>
+                <Grid item xs={4}>
+                  <StyledFormControl>
+                    <InputLabel htmlFor="woreda">Woreda</InputLabel>
+                    <Select
+                      id="woreda"
+                      name="woreda"
+                      fullWidth
+                      value={formData.woreda}
+                      onChange={handleChange}
+                      required
+                    >
+                      {woredaOptions.map((woreda) => (
+                        <MenuItem key={woreda} value={woreda}>
+                          {woreda}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </StyledFormControl>
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
+
+            <Grid item xs={6}>
+              <StyledFormControl>
+                <InputLabel htmlFor="bankName">Bank Name</InputLabel>
+                <StyledSelect
+                  id="bankName"
+                  name="bankName"
+                  fullWidth
+                  value={formData.bankName}
+                  onChange={handleChange}
+                  required
+                >
+                  <MenuItem value="Bank of Abyssinia">
+                    Bank of Abyssinia
+                  </MenuItem>
+                  <MenuItem value="Commercial Bank Of Ethiopia">
+                    Commercial Bank Of Ethiopia
+                  </MenuItem>
+                  <MenuItem value="Wegagen Bank">Wegagen Bank</MenuItem>
+                  <MenuItem value="Dashen Bank">Dashen Bank</MenuItem>
+                  <MenuItem value="Awash Bank">Awash Bank</MenuItem>
+                </StyledSelect>
+              </StyledFormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <StyledTextField
                 label="Account Number"
                 name="accNumber"
                 fullWidth
                 value={formData.accNumber}
                 onChange={handleChange}
                 required
+                variant="outlined"
+                color="primary"
               />
             </Grid>
             <Grid item xs={12}>
-              <InputLabel
-                htmlFor="file-upload"
-                style={{
-                  border: "1px solid #ced4da",
-                  borderRadius: "4px",
-                  padding: "8px",
-                }}
-              >
-                <Input
-                  id="file-upload"
-                  type="file"
-                  name="files"
-                  fullWidth
-                  onChange={handleFileChange}
-                  required
-                  style={{ display: "none" }}
-                />
-                <IconButton color="primary" component="span">
-                  <CloudUploadIcon />
-                </IconButton>
-                Upload File
-              </InputLabel>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor="region">Region</InputLabel>
-                <Select
-                  id="region"
-                  name="region"
-                  fullWidth
-                  value={formData.region}
-                  onChange={handleChange}
-                >
-                  {regionsAndCitiesData.regions.map((region) => (
-                    <MenuItem key={region.name} value={region.name}>
-                      {region.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel htmlFor="city">City</InputLabel>
-                <Select
-                  id="city"
-                  name="city"
-                  fullWidth
-                  value={formData.city}
-                  onChange={handleChange}
-                >
-                  {regionsAndCitiesData.regions
-                    .find((item) => item.name === formData.region)
-                    ?.cities.map((city) => (
-                      <MenuItem key={city} value={city}>
-                        {city}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.restriction}
-                    onChange={handleCheckboxChange}
-                    name="restriction"
-                  />
-                }
-                label="Restriction"
-              />
+              <StyledButton type="submit">Submit</StyledButton>
             </Grid>
           </Grid>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Submit
-          </Button>
         </form>
-      </Paper>
-    </Container>
+      </StyledPaper>
+    </StyledContainer>
   );
 };
 

@@ -19,14 +19,22 @@ export const setAuthHeaders = () => {
   }
 };
 
+export const changePassword = async (formData, token) => {
+  try {
+    // Set authorization header with token
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    const response = await api.put("/user/changepassword", formData);
+    return response.data;
+  } catch (error) {
+    console.error("Error changing password:", error.message);
+    throw new Error("Failed to change password");
+  }
+};
+
 export const postAgent = async (formData) => {
   try {
     setAuthHeaders(); // Set Authorization header
-    const response = await api.post("/agent/signup", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await api.post("/agent/signup", formData);
     return response.data;
   } catch (error) {
     console.error("Error posting agent:", error.message);

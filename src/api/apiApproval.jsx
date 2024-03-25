@@ -18,56 +18,54 @@ export const setAuthHeaders = () => {
   }
 };
 
-
 export const fetchAdminApprovalProducts = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${BASE_URL}approval/adminApproval`, {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${BASE_URL}approval/adminApproval`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data.products;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw new Error("Failed to fetch products");
+  }
+};
+
+export const approveProduct = async (productId) => {
+  try {
+    setAuthHeaders();
+    const token = localStorage.getItem("token");
+    await axios.put(
+      `${BASE_URL}approval/${productId}/adminApproval`,
+      {},
+      {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      return response.data.products;
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      throw new Error("Failed to fetch products");
-    }
-  };
-  
-  export const approveProduct = async (productId) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${BASE_URL}approval/${productId}/adminApproval`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-    } catch (error) {
-      console.error("Error approving product:", error.response.data.message);
-      throw new Error(error.response.data.message || "Failed to approve product");
-    }
-  };
-  
-  export const rejectProduct = async (productId) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `${BASE_URL}approval/${productId}/adminrejected`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-    } catch (error) {
-      console.error("Error rejecting product:", error.response.data.message);
-      throw new Error(
-        error.response.data.message || "Failed to reject product"
-      );
-    }
-  };
+      }
+    );
+  } catch (error) {
+    console.error("Error approving product:", error.response.data.message);
+    throw new Error(error.response.data.message || "Failed to approve product");
+  }
+};
+
+export const rejectProduct = async (productId) => {
+  try {
+    const token = localStorage.getItem("token");
+    await axios.put(
+      `${BASE_URL}approval/${productId}/adminrejected`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Error rejecting product:", error.response.data.message);
+    throw new Error(error.response.data.message || "Failed to reject product");
+  }
+};

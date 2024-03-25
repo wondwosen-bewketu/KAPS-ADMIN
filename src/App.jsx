@@ -1,29 +1,49 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider, CircularProgress } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import { setUser } from "./redux/slice/userSlice";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
-import Dashboard from "./scenes/dashboard";
-import Team from "./scenes/team";
-import Items from "./scenes/item/index";
-import AddItem from "./scenes/item/addItemForm";
-import AddAgent from "./scenes/Call Center/addAgent";
-import AddProduct from "./scenes/Call Center/addProduct";
-import RegisterUser from "./scenes/Registration/registerUser";
-import ReportDashboard from "./scenes/Reports/Reportdashboard";
-import AdminApproval from "./scenes/Admin/adminApproval";
-import QualityApproval from "./scenes/Quality Approval/qualityApproval";
-import InventoryApproval from "./scenes/Inventory/inventoryApproval";
-import FinanceApproval from "./scenes/Finance/financeApproval";
-import CEOApproval from "./scenes/CEO/CEOApproval";
-import Login from "./scenes/user/loginPage";
-import { io } from "socket.io-client";
+import AgentInfoComponent from "./scenes/Call Center/AgentInfoComponet";
+const Settings = React.lazy(() => import("./scenes/user/Settings"));
+
+// Wrap components with React.lazy
+const Dashboard = React.lazy(() => import("./scenes/dashboard"));
+const Team = React.lazy(() => import("./scenes/team"));
+const Items = React.lazy(() => import("./scenes/item/index"));
+const AddItem = React.lazy(() => import("./scenes/item/addItemForm"));
+const AddAgent = React.lazy(() => import("./scenes/Call Center/addAgent"));
+const AddProduct = React.lazy(() => import("./scenes/Call Center/addProduct"));
+const WearHouse = React.lazy(() => import("./scenes/Call Center/wearHouse"));
+const ProductList = React.lazy(() =>
+  import("./scenes/Call Center/productList")
+);
+const AgentLogin = React.lazy(() => import("./scenes/Call Center/AgentLogin"));
+
+const RegisterUser = React.lazy(() =>
+  import("./scenes/Registration/registerUser")
+);
+const ReportDashboard = React.lazy(() =>
+  import("./scenes/Reports/Reportdashboard")
+);
+const AdminApproval = React.lazy(() => import("./scenes/Admin/adminApproval"));
+const QualityApproval = React.lazy(() =>
+  import("./scenes/Quality Approval/qualityApproval")
+);
+const InventoryApproval = React.lazy(() =>
+  import("./scenes/Inventory/inventoryApproval")
+);
+const FinanceApproval = React.lazy(() =>
+  import("./scenes/Finance/financeApproval")
+);
+const CEOApproval = React.lazy(() => import("./scenes/CEO/CEOApproval"));
+const Login = React.lazy(() => import("./scenes/user/loginPage"));
 
 function PrivateRoutes() {
   const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
   if (user && user.token) {
     switch (user.user.role) {
@@ -37,6 +57,7 @@ function PrivateRoutes() {
             <Route path="/items" element={<Items />} />
             <Route path="/team" element={<Team />} />
             <Route path="/reportdashboard" element={<ReportDashboard />} />
+            <Route path="/setting" element={<Settings />} />
           </Routes>
         );
       case "Call Center":
@@ -48,6 +69,23 @@ function PrivateRoutes() {
             <Route path="/items" element={<Items />} />
             <Route path="/addAgent" element={<AddAgent />} />
             <Route path="/addProduct" element={<AddProduct />} />
+            <Route path="/agentLogin" element={<AgentLogin />} />
+            <Route path="/setting" element={<Settings />} />
+            <Route
+              path="/wearhouse"
+              element={
+                <WearHouse
+                  onSelectLocation={(location) =>
+                    navigate(`/products/${location}`)
+                  }
+                />
+              }
+            />
+
+            {/* LocationList component */}
+            <Route path="/agentInfo/:phone" element={<AgentInfoComponent />} />
+            {/* ProductList component */}
+            <Route path="/products/:location" element={<ProductList />} />
           </Routes>
         );
       case "Super Admin":
@@ -128,17 +166,19 @@ function App() {
     fetchUser();
   }, [dispatch]);
 
-  useEffect(() => {
-    // Reset notification count when navigating to the agent list
-    return navigate((location) => {
-      if (location.pathname === "/items") {
-        setNotificationCount(0);
-      }
-    });
-  }, [navigate]);
-
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </div>
+    );
   }
 
   return (
@@ -154,7 +194,24 @@ function App() {
               />
               <main className="content">
                 <Topbar />
-                <PrivateRoutes />
+                {/* Wrap PrivateRoutes with Suspense */}
+                <Suspense
+                  fallback={
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100vh",
+                      }}
+                    >
+                      Loading..
+                      <CircularProgress />
+                    </div>
+                  }
+                >
+                  <PrivateRoutes />
+                </Suspense>
               </main>
             </>
           ) : (

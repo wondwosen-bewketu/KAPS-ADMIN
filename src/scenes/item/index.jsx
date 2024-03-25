@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Box, Modal } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Box, Modal, CircularProgress } from "@mui/material"; // Import CircularProgress for loading spinner
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../components/Header";
 import { fetchItems } from "../../redux/slice/itemSlice";
-import { BASE_URL } from "../../api/baseURL";
 import IconButton from "@mui/material/IconButton";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
@@ -19,9 +18,13 @@ const Items = () => {
   const [pageSize] = useState(10);
   const [isImageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isLoading, setLoading] = useState(false); // State for loading status
 
   useEffect(() => {
-    dispatch(fetchItems({ page, pageSize }));
+    setLoading(true); // Set loading state to true when fetching starts
+    dispatch(fetchItems({ page, pageSize })).then(() => {
+      setLoading(false); // Set loading state to false when fetching finishes
+    });
   }, [dispatch, page, pageSize]); // Fetch items whenever page or pageSize changes
 
   // Add handleFirstPage function
@@ -55,21 +58,27 @@ const Items = () => {
     const item = items.find((item) => item.id === params.row.id);
     if (!item) return null;
 
-    return (
+    return item ? (
       <img
-        src={`${BASE_URL}${item.file}`}
-        alt="avatar"
+        src={
+          item.file && item.file.url ? item.file.url : "default_image_file.jpg"
+        }
+        alt="avater"
         style={{
           width: "50px",
           height: "50px",
           objectFit: "cover",
           borderRadius: "10%",
           border: "2px solid #333",
-          cursor: "pointer",
+          cursor: "pointer", // Add cursor pointer for clickable image
         }}
-        onClick={() => handleImageClick(`${BASE_URL}${item.file}`)}
+        onClick={() =>
+          handleImageClick(
+            item.file && item.file.url ? item.file.url : "default_image_url.jpg"
+          )
+        }
       />
-    );
+    ) : null;
   }
 
   const columns = [
@@ -102,7 +111,18 @@ const Items = () => {
     <Box m="20px" height="100%">
       <Header title="Items" subtitle="List of Items" />
       <Box m="40px 0 0 0" height="calc(75vh - 64px)">
-        {items && items.length > 0 ? (
+        {isLoading ? ( // Render loading spinner if isLoading is true
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        ) : items && items.length > 0 ? (
           <DataGrid
             rows={items}
             columns={columns}
