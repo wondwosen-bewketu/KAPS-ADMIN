@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {
   Table,
@@ -167,18 +167,16 @@ const AdminApproval = () => {
                   <TableCell>
                     {[
                       "Admin Approved",
-                      "Quality Approved",
-                      "Inventory Approved",
                       "Finance Approved",
-                      "CEO Approved",
+                      "Oditor Approved",
+                      "General Manager Approved",
                     ].includes(product.approvalStatus) ? (
                       <CheckCircleOutline sx={{ color: "green" }} />
                     ) : [
                         "Admin Rejected",
-                        "Quality Rejected",
-                        "Inventory Rejected",
                         "Finance Rejected",
-                        "CEO Rejected",
+                        "Oditor Rejected",
+                        "General Manager Rejected",
                       ].includes(product.approvalStatus) ? (
                       <CancelOutlined sx={{ color: "red" }} />
                     ) : (

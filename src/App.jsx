@@ -7,7 +7,12 @@ import { setUser } from "./redux/slice/userSlice";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
 import AgentInfoComponent from "./scenes/Call Center/AgentInfoComponet";
+import { CartesianAxis } from "recharts";
+import { CardTravelRounded } from "@material-ui/icons";
 const Settings = React.lazy(() => import("./scenes/user/Settings"));
+const Cart = React.lazy(() =>
+  import("./scenes/Admin/Cart")
+);
 
 // Wrap components with React.lazy
 const Dashboard = React.lazy(() => import("./scenes/dashboard"));
@@ -29,16 +34,16 @@ const ReportDashboard = React.lazy(() =>
   import("./scenes/Reports/Reportdashboard")
 );
 const AdminApproval = React.lazy(() => import("./scenes/Admin/adminApproval"));
-const QualityApproval = React.lazy(() =>
-  import("./scenes/Quality Approval/qualityApproval")
-);
-const InventoryApproval = React.lazy(() =>
-  import("./scenes/Inventory/inventoryApproval")
-);
 const FinanceApproval = React.lazy(() =>
-  import("./scenes/Finance/financeApproval")
+  import("./scenes/Finance Approval/financeApproval")
 );
-const CEOApproval = React.lazy(() => import("./scenes/CEO/CEOApproval"));
+const OditorApproval = React.lazy(() =>
+  import("./scenes/Oditor/oditorApproval")
+);
+const GeneralManagerApproval = React.lazy(() =>
+  import("./scenes/General Manager/generalManagerApproval")
+);
+
 const Login = React.lazy(() => import("./scenes/user/loginPage"));
 
 function PrivateRoutes() {
@@ -58,6 +63,7 @@ function PrivateRoutes() {
             <Route path="/team" element={<Team />} />
             <Route path="/reportdashboard" element={<ReportDashboard />} />
             <Route path="/setting" element={<Settings />} />
+            <Route path="/orders" element={<Cart />} />
           </Routes>
         );
       case "Call Center":
@@ -98,22 +104,6 @@ function PrivateRoutes() {
             <Route path="/registeruser" element={<RegisterUser />} />
           </Routes>
         );
-      case "Quality Approval":
-        return (
-          <Routes>
-            <Route index element={<Navigate replace to="/dashboard" />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/qualityApproval" element={<QualityApproval />} />
-          </Routes>
-        );
-      case "Inventory":
-        return (
-          <Routes>
-            <Route index element={<Navigate replace to="/dashboard" />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/inventoryApproval" element={<InventoryApproval />} />
-          </Routes>
-        );
       case "Finance":
         return (
           <Routes>
@@ -122,14 +112,26 @@ function PrivateRoutes() {
             <Route path="/financeApproval" element={<FinanceApproval />} />
           </Routes>
         );
-      case "Doctor":
+      case "Oditor":
         return (
           <Routes>
             <Route index element={<Navigate replace to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/ceoApproval" element={<CEOApproval />} />
+            <Route path="/oditorApproval" element={<OditorApproval />} />
           </Routes>
         );
+      case "General Manager":
+        return (
+          <Routes>
+            <Route index element={<Navigate replace to="/dashboard" />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/generalManagerApproval"
+              element={<GeneralManagerApproval />}
+            />
+          </Routes>
+        );
+
       default:
         return <Navigate to="/login" replace />;
     }
@@ -143,8 +145,6 @@ function App() {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const [notificationCount, setNotificationCount] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -188,10 +188,7 @@ function App() {
         <div className="app">
           {user && user.token ? (
             <>
-              <Sidebar
-                userRole={user.user.role}
-                notificationCount={notificationCount}
-              />
+              <Sidebar userRole={user.user.role} />
               <main className="content">
                 <Topbar />
                 {/* Wrap PrivateRoutes with Suspense */}
