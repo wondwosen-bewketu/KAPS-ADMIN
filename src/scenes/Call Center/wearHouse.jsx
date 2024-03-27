@@ -1,34 +1,80 @@
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchLocationsAsync,
   selectWearhouseInfo,
 } from "../../redux/slice/wearhouseSlice";
 
+import { styled } from "@mui/system";
+import {
+  Typography,
+  Paper,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  Divider,
+  Button,
+  Modal,
+  Box,
+  CircularProgress,
+} from "@mui/material";
+
+    //styled button
+    const StyledButton = styled(Button)({
+      marginTop: "20px",
+      marginRight: "10px", // Added margin for spacing
+      background: "linear-gradient(45deg, #d7a022, #60a018)",
+      color: "white",
+      fontWeight: "bold",
+      "&:hover": {
+        background: "linear-gradient(45deg, #60a018, #d7a022)",
+      },
+    });
+
 const LocationList = ({ onSelectLocation }) => {
   const dispatch = useDispatch();
   const wearhouseInfo = useSelector(selectWearhouseInfo);
+
+
+
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20; // 5 columns * 4 rows = 20 items per page
 
   useEffect(() => {
     dispatch(fetchLocationsAsync());
   }, [dispatch]);
 
+
+
+  // Calculate indexes for the items to display on the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = wearhouseInfo && wearhouseInfo.slice(indexOfFirstItem, indexOfLastItem);
+
+  const currentItemsLength =currentItems?.length ;
+ 
+
+
+  // Change page
+  const nextPage = () => {
+    setCurrentPage(currentPage + 1);
+  };
+
+  const prevPage = () => {
+    setCurrentPage(currentPage - 1);
+  };
+
   return (
     <div style={{ margin: "0 auto", padding: "20px" }}>
-      <h2
-        style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}
-      >
+      <h2 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
         KAPS Warehouse Locations
       </h2>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
-          gap: "20px",
-        }}
-      >
-        {wearhouseInfo &&
-          wearhouseInfo.map((location) => (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "20px" }}>
+        {currentItems &&
+          currentItems.map((location) => (
             <div
               key={location._id}
               style={{
@@ -42,12 +88,19 @@ const LocationList = ({ onSelectLocation }) => {
               }}
               onClick={() => onSelectLocation(location.location)}
             >
-              <p style={{ fontSize: "18px", fontWeight: "bold", margin: "0" }}>
-                {location.location}
-              </p>
+              <p style={{ fontSize: "18px", fontWeight: "bold", margin: "0" }}>{location.location}</p>
             </div>
           ))}
       </div>
+      {/* Pagination buttons */}
+      <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+      <StyledButton variant="contained" onClick={prevPage} disabled={currentPage === 1} >
+      Previous
+      </StyledButton>
+      <StyledButton variant="contained" onClick={nextPage} disabled={currentItemsLength < itemsPerPage} >
+      Next
+      </StyledButton>
+        </div>
     </div>
   );
 };
