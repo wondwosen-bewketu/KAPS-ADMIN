@@ -6,19 +6,7 @@ import {
 } from "../../redux/slice/wearhouseSlice";
 
 import { styled } from "@mui/system";
-import {
-  Typography,
-  Paper,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
-  Divider,
-  Button,
-  Modal,
-  Box,
-  CircularProgress,
-} from "@mui/material";
+import {Button} from "@mui/material";
 
     //styled button
     const StyledButton = styled(Button)({
@@ -72,7 +60,7 @@ const LocationList = ({ onSelectLocation }) => {
       <h2 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
         KAPS Warehouse Locations
       </h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "20px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px" }}>
         {currentItems &&
           currentItems.map((location) => (
             <div
