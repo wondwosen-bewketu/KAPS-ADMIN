@@ -21,7 +21,7 @@ export const setAuthHeaders = () => {
 export const fetchAdminApprovalProducts = async () => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axios.get(`${BASE_URL}approval/adminApproval`, {
+    const response = await axios.get(`${BASE_URL}approval/products`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

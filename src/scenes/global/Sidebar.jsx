@@ -12,7 +12,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import GroupIcon from "@mui/icons-material/Group";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import AssessmentIcon from "@mui/icons-material/Assessment";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import logo from "../../assets/log.png";
 import { useNavigate } from "react-router-dom";
@@ -95,66 +94,6 @@ const Sidebar = ({ userRole }) => {
             </ListItem>
           </>
         )}
-        {userRole === "Quality Approval" && (
-          <>
-            <ListItem
-              className={classes.listItem}
-              onClick={() => handleItemClick("Dashboard", "/dashboard")}
-              selected={selected === "Dashboard"}
-              button
-            >
-              <ListItemIcon style={{ color: "#d7a022" }}>
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
-
-            <ListItem
-              className={classes.listItem}
-              onClick={() =>
-                handleItemClick("Quality Approval", "/qualityApproval")
-              }
-              selected={selected === "Quality Approval"}
-              button
-            >
-              <ListItemIcon style={{ color: "#d7a022" }}>
-                <AddCircleOutlineIcon />
-              </ListItemIcon>
-              <ListItemText primary="Quality Approval" />
-            </ListItem>
-          </>
-        )}
-
-        {userRole === "Inventory" && (
-          <>
-            <ListItem
-              className={classes.listItem}
-              onClick={() => handleItemClick("Dashboard", "/dashboard")}
-              selected={selected === "Dashboard"}
-              button
-            >
-              <ListItemIcon style={{ color: "#d7a022" }}>
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
-
-            <ListItem
-              className={classes.listItem}
-              onClick={() =>
-                handleItemClick("Inventory Approval", "/inventoryApproval")
-              }
-              selected={selected === "Inventory Approval"}
-              button
-            >
-              <ListItemIcon style={{ color: "#d7a022" }}>
-                <AddCircleOutlineIcon />
-              </ListItemIcon>
-              <ListItemText primary="Inventory Approval" />
-            </ListItem>
-          </>
-        )}
-
         {userRole === "Finance" && (
           <>
             <ListItem
@@ -185,7 +124,7 @@ const Sidebar = ({ userRole }) => {
           </>
         )}
 
-        {userRole === "Doctor" && (
+        {userRole === "Oditor" && (
           <>
             <ListItem
               className={classes.listItem}
@@ -201,14 +140,49 @@ const Sidebar = ({ userRole }) => {
 
             <ListItem
               className={classes.listItem}
-              onClick={() => handleItemClick("CEO Approval", "/ceoApproval")}
-              selected={selected === "CEO Approval"}
+              onClick={() =>
+                handleItemClick("Oditor Approval", "/oditorApproval")
+              }
+              selected={selected === "Oditor Approval"}
               button
             >
               <ListItemIcon style={{ color: "#d7a022" }}>
                 <AddCircleOutlineIcon />
               </ListItemIcon>
-              <ListItemText primary="CEO Approval" />
+              <ListItemText primary="Oditor Approval" />
+            </ListItem>
+          </>
+        )}
+
+        {userRole === "General Manager" && (
+          <>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("Dashboard", "/dashboard")}
+              selected={selected === "Dashboard"}
+              button
+            >
+              <ListItemIcon style={{ color: "#d7a022" }}>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() =>
+                handleItemClick(
+                  "General Manager Approval",
+                  "/generalManagerApproval"
+                )
+              }
+              selected={selected === "General Manager Approval"}
+              button
+            >
+              <ListItemIcon style={{ color: "#d7a022" }}>
+                <AddCircleOutlineIcon />
+              </ListItemIcon>
+              <ListItemText primary="General Manager Approval" />
             </ListItem>
           </>
         )}
@@ -261,6 +235,18 @@ const Sidebar = ({ userRole }) => {
                 <AddCircleOutlineIcon />
               </ListItemIcon>
               <ListItemText primary="Add Item" />
+            </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("Orders", "/orders")}
+              selected={selected === "orders"}
+              button
+            >
+              <ListItemIcon style={{ color: "#d7a022" }}>
+                <AddCircleOutlineIcon />
+              </ListItemIcon>
+              <ListItemText primary="orders" />
             </ListItem>
 
             <ListItem

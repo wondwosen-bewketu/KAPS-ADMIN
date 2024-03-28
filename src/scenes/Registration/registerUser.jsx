@@ -119,10 +119,10 @@ const RegisterUserForm = () => {
                   <MenuItem value=""></MenuItem>
                   <MenuItem value="Admin">Admin</MenuItem>
                   <MenuItem value="Call Center">Call Center</MenuItem>
-                  <MenuItem value="Quality Approval">Quality Approval</MenuItem>
-                  <MenuItem value="Inventory">Inventory</MenuItem>
                   <MenuItem value="Finance">Finance</MenuItem>
-                  <MenuItem value="Doctor">Doctor</MenuItem>
+                  <MenuItem value="Oditor">Oditor</MenuItem>
+                  <MenuItem value="General Manager">General Manager</MenuItem>
+                  
                 </Select>
               </FormControl>
             </Grid>
