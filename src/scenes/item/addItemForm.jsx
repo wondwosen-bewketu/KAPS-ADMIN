@@ -69,14 +69,14 @@ const AddItemForm = () => {
   
     try {
       await dispatch(addItem(newItemData));
-      toast.success("Item added successfully!");
       setItemName("");
       dispatch(fetchAdminItems());
+      toast.success("Item added successfully!");
   
       // After adding the item, unshift it to the beginning of the items array
-      dispatch((state) => {
-        state.items.data.unshift(newItemData);
-      });
+      // dispatch((state) => {
+      //   state.items.data.unshift(newItemData);
+      // });
     } catch (error) {
       toast.error("Failed to add item");
     }

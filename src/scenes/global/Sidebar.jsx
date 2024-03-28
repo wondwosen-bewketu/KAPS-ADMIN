@@ -349,7 +349,7 @@ const Sidebar = ({ userRole }) => {
               <ListItemText primary="Wearhouse" />
             </ListItem>
 
-            <ListItem
+            {/* <ListItem
               className={classes.listItem}
               onClick={() => handleItemClick("Add Product", "/addProduct")}
               selected={selected === "Add Product"}
@@ -359,7 +359,7 @@ const Sidebar = ({ userRole }) => {
                 <AddCircleOutlineIcon />
               </ListItemIcon>
               <ListItemText primary="Add Product" />
-            </ListItem>
+            </ListItem> */}
             <ListItem
               className={classes.listItem}
               onClick={() => handleItemClick("Item List", "/items")}

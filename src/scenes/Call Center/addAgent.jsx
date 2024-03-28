@@ -135,7 +135,7 @@ const AgentForm = () => {
 
     try {
       await dispatch(postAgentAsync(formData));
-      toast.success("Agent Registered successfully!");
+       toast.success("Agent Registered successfully!");
       setFormData({
         name: "",
         phone: "",

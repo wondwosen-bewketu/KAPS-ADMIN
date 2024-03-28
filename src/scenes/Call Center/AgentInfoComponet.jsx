@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Typography,
   Paper,
-ListItem,
+  ListItem,
   ListItemText,
   ListItemAvatar,
   Avatar,
@@ -70,6 +70,10 @@ const AgentInfoComponent = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
+  const [isImageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   useEffect(() => {
     dispatch(fetchAgentInfoAsync(phone));
   }, [dispatch, phone]);
@@ -101,20 +105,40 @@ const AgentInfoComponent = () => {
       await dispatch(updateAgentInfoAsync({ phone, formData }));
       setIsModalOpen(false);
       setIsLoading(false);
+      window.location.reload();
     } catch (error) {
       console.error("Error updating agent info:", error);
       setIsLoading(false);
     }
   };
 
-  const handlePdfClick = () => {
-    if (agentInfo && agentInfo.files && agentInfo.files.length > 0) {
-      // Iterate over each file and open its URL in a new tab
-      agentInfo.files.forEach((file) => {
-        window.open(file.url, "_blank");
-      });
-    }
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    console.log(imageUrl);
+    setImageModalOpen(true);
   };
+
+
+
+
+  const handleNext = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % selectedImage.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImage.length) % selectedImage.length);
+  };
+
+
+  
+  // const handlePdfClick = () => {
+  //   if (agentInfo && agentInfo.files && agentInfo.files.length > 0) {
+  //     // Iterate over each file and open its URL in a new tab
+  //     agentInfo.files.forEach((file) => {
+  //       window.open(file.url, "_blank");
+  //     });
+  //   }
+  // };
 
   const handleAddProduct = () => {
     navigate(
@@ -126,7 +150,6 @@ const AgentInfoComponent = () => {
 
   return (
     <StyledPaper elevation={3}>
-   
       {!isLoading && agentInfo && (
         <>
           <Title>{agentInfo.name}</Title>
@@ -162,7 +185,16 @@ const AgentInfoComponent = () => {
                     </div>
                   </Subtitle>
 
-                  <Button variant="contained" onClick={handlePdfClick}>
+                  <Button
+                    variant="contained"
+                    onClick={() =>
+                      handleImageClick(
+                        agentInfo.files && agentInfo.files.length > 0
+                          ? agentInfo.files.map((file) => file.url)
+                          : ["default_image_url.jpg"]
+                      )
+                    }
+                  >
                     Open File
                   </Button>
                 </>
@@ -245,6 +277,41 @@ const AgentInfoComponent = () => {
           </Button>
         </Box>
       </Modal>
+
+      {/* image modal of the agent  */}
+      <Modal open={isImageModalOpen} onClose={() => setImageModalOpen(false)}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          bgcolor: "white",
+          boxShadow: 24,
+          borderRadius: 8,
+          p: 4,
+        }}
+      >
+        {selectedImage && (
+          <>
+            <img
+              src={selectedImage[currentImageIndex]}
+              alt={`image_${currentImageIndex}`}
+              style={{
+                maxWidth: "100%",
+                maxHeight: "70vh", // Set maximum height to prevent the image from becoming too large
+                objectFit: "contain",
+                marginBottom: "10px", // Optional: Add margin between images
+              }}
+            />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Button onClick={handlePrev} disabled={currentImageIndex === 0}>Prev</Button>
+              <Button onClick={handleNext} disabled={currentImageIndex === selectedImage.length - 1}>Next</Button>
+            </div>
+          </>
+        )}
+      </Box>
+    </Modal>
     </StyledPaper>
   );
 };
