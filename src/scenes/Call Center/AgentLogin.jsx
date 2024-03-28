@@ -53,6 +53,11 @@ const AgentFormComponent = () => {
   const navigate = useNavigate();
 
   const handleGetAgent = async () => {
+    if (!phone) {
+      setError("Please insert Agents phone number.");
+      return;
+    }
+
     try {
       await dispatch(fetchAgentInfoAsync(phone)); // Dispatch action to fetch agent profile
       setError(""); // Clear any previous error

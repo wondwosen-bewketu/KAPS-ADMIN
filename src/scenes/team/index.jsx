@@ -24,8 +24,8 @@ const Team = () => {
   const dispatch = useDispatch();
   const employees = useSelector(selectEmployees);
 
-  const [isImageModalOpen, setImageModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [isProfileImageModalOpen, setProfileImageModalOpen] = useState(false);
+  const [profileImage, setprofileImage] = useState(null);
   const [toggledEmployees, setToggledEmployees] = useState(() => {
     const storedState = localStorage.getItem("toggledEmployees");
     return storedState
@@ -41,6 +41,10 @@ const Team = () => {
   const [actionType, setActionType] = useState(""); // "block" or "unblock"
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  
+  const [isImageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     dispatch(fetchEmployees());
@@ -137,23 +141,43 @@ const Team = () => {
     },
   ];
 
+  //?new
+  const handleProfileImageClick = (imageUrl) => {
+    setprofileImage(imageUrl);
+    setProfileImageModalOpen(true);
+  };
+
   const handleImageClick = (imageUrl) => {
     setSelectedImage(imageUrl);
     setImageModalOpen(true);
   };
 
+
+  const handleNext = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % selectedImage.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImage.length) % selectedImage.length);
+  };
+
   function renderImageCell(params) {
     const employee = employees.find((emp) => emp.id === params.row.id);
-    console.log("Employee:", employee);
+    console.log("Employee:", employee.files);
 
     return employee && employee.files ? (
-      <a
-        href={`${BASE_URL}${employee.files}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open PDF
-      </a>
+      <Button
+                    variant="contained"
+                    onClick={() =>
+                      handleImageClick(
+                        employee.files && employee.files.length > 0
+                          ? employee.files.map((file) => file.url)
+                          : ["default_image_url.jpg"]
+                      )
+                    }
+                  >
+                    Open File
+                  </Button>
     ) : null;
   }
 
@@ -163,7 +187,7 @@ const Team = () => {
 
     return employee ? (
       <img
-        src={`${BASE_URL}${employee.img}`}
+        src={employee.img.url}
         alt="avater"
         style={{
           width: "50px",
@@ -173,7 +197,7 @@ const Team = () => {
           border: "2px solid #333",
           cursor: "pointer", // Add cursor pointer for clickable image
         }}
-        onClick={() => handleImageClick(`${BASE_URL}${employee.img}`)}
+        onClick={() => handleProfileImageClick(employee.img.url)}
       />
     ) : null;
   }
@@ -201,7 +225,7 @@ const Team = () => {
           boundaryCount={2}
           onShowSizeChange={(event, newSize) => handlePageSizeChange(newSize)}
         />
-        <Modal open={isImageModalOpen} onClose={() => setImageModalOpen(false)}>
+        <Modal open={isProfileImageModalOpen} onClose={() => setProfileImageModalOpen(false)}>
           <Box
             sx={{
               position: "absolute",
@@ -214,14 +238,15 @@ const Team = () => {
               p: 4,
             }}
           >
-            {selectedImage && (
+            {profileImage && (
               <img
-                src={selectedImage}
+                src={profileImage}
                 alt="avater"
                 style={{
-                  width: "100%",
-                  height: "auto",
+                  maxWidth: "100%",
+                  maxHeight: "70vh", // Set maximum height to prevent the image from becoming too large
                   objectFit: "contain",
+                  marginBottom: "10px", // Optional: Add margin between images
                 }}
               />
             )}
@@ -262,6 +287,41 @@ const Team = () => {
             </Box>
           </Box>
         </Modal>
+
+
+        <Modal open={isImageModalOpen} onClose={() => setImageModalOpen(false)}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          bgcolor: "white",
+          boxShadow: 24,
+          borderRadius: 8,
+          p: 4,
+        }}
+      >
+        {selectedImage && (
+          <>
+            <img
+              src={selectedImage[currentImageIndex]}
+              alt={`image_${currentImageIndex}`}
+              style={{
+                maxWidth: "100%",
+                maxHeight: "70vh", // Set maximum height to prevent the image from becoming too large
+                objectFit: "contain",
+                marginBottom: "10px", // Optional: Add margin between images
+              }}
+            />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Button onClick={handlePrev} disabled={currentImageIndex === 0}>Prev</Button>
+              <Button onClick={handleNext} disabled={currentImageIndex === selectedImage.length - 1}>Next</Button>
+            </div>
+          </>
+        )}
+      </Box>
+    </Modal>
       </Box>
     </Box>
   );

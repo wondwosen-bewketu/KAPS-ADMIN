@@ -56,6 +56,7 @@ const Items = () => {
 
   function renderImageCell(params) {
     const item = items.find((item) => item.id === params.row.id);
+    console.log(item)
     if (!item) return null;
 
     return item ? (
@@ -127,10 +128,16 @@ const Items = () => {
             rows={items}
             columns={columns}
             components={{ Toolbar: GridToolbar }}
-            pageSize={pageSize}
+            // pageSize={10}
             rowsPerPageOptions={[10]}
+            pageSizeOptions={[10,25,50,100]}
             checkboxSelection
             getRowId={(row) => row._id}
+            initialState={{
+              pagination: {
+                paginationModel: { page: 0, pageSize: 10 },
+              },
+            }}
             autoHeight
           />
         ) : (
@@ -155,9 +162,10 @@ const Items = () => {
                 src={selectedImage}
                 alt="avatar"
                 style={{
-                  width: "100%",
-                  height: "auto",
+                  maxWidth: "100%",
+                  maxHeight: "70vh", // Set maximum height to prevent the image from becoming too large
                   objectFit: "contain",
+                  marginBottom: "10px", // Optional: Add margin between images
                 }}
               />
             )}
