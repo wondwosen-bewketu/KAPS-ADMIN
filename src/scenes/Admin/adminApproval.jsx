@@ -149,7 +149,7 @@ const AdminApproval = () => {
                 <TableCell>Description</TableCell>
                 <TableCell>Agent Phone</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Approved/Rejected By</TableCell>
+                
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -163,7 +163,7 @@ const AdminApproval = () => {
                   <TableCell>{product.productdescription}</TableCell>
                   <TableCell>{product.agentphone}</TableCell>
                   <TableCell>{product.approvalStatus}</TableCell>
-                  <TableCell>{product.adminApprovalName}</TableCell>
+                 
                   <TableCell>
                     {[
                       "Admin Approved",

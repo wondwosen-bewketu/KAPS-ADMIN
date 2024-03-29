@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "../../api/baseURL";
-import OrderDetails from "./OrderDetails"; // Import the child component
+import OrderDetails from "./OrderDetails";
 import {
   Table,
   TableBody,
@@ -10,11 +10,12 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
 } from "@mui/material";
 
 const CartList = () => {
   const [carts, setCarts] = useState([]);
-  const [selectedCart, setSelectedCart] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   useEffect(() => {
     fetchCarts();
@@ -29,66 +30,47 @@ const CartList = () => {
     }
   };
 
-  const handleOrderClick = async (orderId) => {
-    try {
-      const response = await axios.get(`${BASE_URL}cart/details/${orderId}`);
-      setSelectedCart(response.data);
-    } catch (error) {
-      console.error("Error fetching cart details:", error);
-    }
+  const handleViewDetails = (orderId) => {
+    setSelectedOrderId(orderId);
+  };
+
+  const handleOrderDetailsClose = () => {
+    setSelectedOrderId(null);
   };
 
   return (
     <div>
       <h2>Cart Information</h2>
-      {selectedCart ? (
-        <OrderDetails cart={selectedCart} />
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Product Name</TableCell>
-                <TableCell>Quantity</TableCell>
-                <TableCell>Unit</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell>Item Price</TableCell>
-                <TableCell>Tax</TableCell>
-                <TableCell>Service Charge</TableCell>
-                <TableCell>Total Price</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {carts.map((cart) => (
-                <React.Fragment key={cart._id}>
-                  {cart.orders.map((order) => (
-                    <TableRow key={order._id}>
-                      <TableCell>{cart.orderID}</TableCell>
-                      <TableCell>{order.productName}</TableCell>
-                      <TableCell>{order.quantity}</TableCell>
-                      <TableCell>{order.unit}</TableCell>
-                      <TableCell>{order.price}</TableCell>
-                      <TableCell>{order.itemPrice}</TableCell>
-                      <TableCell>{order.tax}</TableCell>
-                      <TableCell>{order.serviceCharge}</TableCell>
-                      <TableCell>{order.totalPrice}</TableCell>
-                      <TableCell>{cart.status}</TableCell>
-                      <TableCell>
-                        <button onClick={() => handleOrderClick(cart.orderID)}>
-                          View Details
-                        </button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </React.Fragment>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      {selectedOrderId && (
+        <OrderDetails
+          cart={carts.find((cart) => cart.orderID === selectedOrderId)}
+          onClose={handleOrderDetailsClose}
+        />
       )}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Order ID</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {carts.map((cart) => (
+              <TableRow key={cart.orderID}>
+                <TableCell>{cart.orderID}</TableCell>
+                <TableCell>{cart.status}</TableCell>
+                <TableCell>
+                  <Button onClick={() => handleViewDetails(cart.orderID)}>
+                    View Details
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 };
