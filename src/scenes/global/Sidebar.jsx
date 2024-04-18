@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Drawer,
@@ -6,6 +6,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Badge,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import HomeIcon from "@mui/icons-material/Home";
@@ -15,6 +16,14 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import logo from "../../assets/log.png";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchLocationsAsync,
+  selectWearhouseInfo,
+} from "../../redux/slice/wearhouseSlice";
+import socketIOClient from "socket.io-client";
+
+export const socket = socketIOClient("http://localhost:4000/");
 
 const drawerWidth = 280;
 
@@ -49,9 +58,87 @@ const useStyles = makeStyles((theme) => ({
 const Sidebar = ({ userRole }) => {
   const classes = useStyles();
   const [selected, setSelected] = useState("Dashboard");
+  const wearhouseInfo = useSelector(selectWearhouseInfo);
   const navigate = useNavigate();
 
+  const [datas, setDatas] = useState([]);
+  const [isNewData, setIsNewData] = useState(false);
+  const [datasWarehouse, setDatasWarehouse] = useState([]);
+  const [isNewDataWarehouse, setIsNewDataWarehouse] = useState(false);
+  const [datasProduct, setDatasProduct] = useState([]);
+  const [isNewDataProduct, setIsNewDataProduct] = useState(false);
+
+  useEffect(() => {
+    //agent socket
+    socket.emit("initial_data");
+    socket.on("get_data", getData);
+    socket.on("change_data", changeData);
+ //warehouse socket
+    socket.emit("initial_Warehouse_data");
+    socket.on("get_Warehouse_data", getDataWarehouse);
+    socket.on("change_Warehouse_data", changeDataWarehouse);
+//product socket
+    socket.emit("initial_Product_data");
+    socket.on("get_Product_data", getDataProduct);
+    socket.on("change_Product_data", changeDataProduct);
+    return () => {
+      //agent socket
+      socket.off("get_data");
+      socket.off("change_data");
+    //warehouse socket
+      socket.off("get_Warehouse_data");
+      socket.off("change_Warehouse_data");
+    //product socket
+      socket.off("get_Product_data");
+      socket.off("change_Product_data");
+    };
+  }, []);
+
+  const getData = (datas) => {
+    if (datas.length && datas.some((data) => data.read === false)) {
+      setIsNewData(true);
+    } else {
+      setIsNewData(false);
+    }
+    setDatas(datas);
+  };
+
+  const getDataWarehouse = (datasWarehouse) => {
+
+    if (datasWarehouse.length && datasWarehouse.some((data) => data.read === false)) {
+      setIsNewDataWarehouse(true);
+    } else {
+      setIsNewDataWarehouse(false);
+    }
+    setDatasWarehouse(datasWarehouse);
+  };
+  
+  const getDataProduct = (datasProduct) => {
+
+    if (datasProduct.length && datasProduct.some((data) => data.read === false)) {
+      setIsNewDataProduct(true);
+    } else {
+      setIsNewDataProduct(false);
+    }
+    setDatasProduct(datasProduct);
+  };
+
+
+  const changeData = () => socket.emit("initial_data");
+  const changeDataWarehouse = () => socket.emit("initial_Warehouse_data");
+  const changeDataProduct = () => socket.emit("initial_Product_data");
+
   const handleItemClick = (title, to) => {
+    if (title === "Wearhouse") {
+      socket.emit("check_all_Warehouse_notifications");
+    }
+    if (title === "Manage Team") {
+      socket.emit("check_all_notifications");
+    }
+    if (title === "Item List") {
+      socket.emit("check_all_Product_notifications");
+    }
+
     setSelected(title);
     navigate(to);
   };
@@ -220,7 +307,15 @@ const Sidebar = ({ userRole }) => {
               button
             >
               <ListItemIcon style={{ color: "#d7a022" }}>
-                <GroupIcon />
+                <Badge
+                  color="error"
+                  badgeContent={
+                    isNewData ? datas.filter((data) => !data.read).length : 0
+                  }
+                >
+                  <GroupIcon sx={{ color: "#d7a022" }} />
+                </Badge>
+                {/* <GroupIcon /> */}
               </ListItemIcon>
               <ListItemText primary="Agnets" />
             </ListItem>
@@ -268,7 +363,14 @@ const Sidebar = ({ userRole }) => {
               button
             >
               <ListItemIcon style={{ color: "#d7a022" }}>
-                <ListAltIcon />
+              <Badge
+                  color="error"
+                  badgeContent={
+                    isNewDataProduct ? datasProduct.filter((data) => !data.read).length : 0
+                  }
+                >
+                  <ListAltIcon sx={{ color: "#d7a022" }} />
+                </Badge>
               </ListItemIcon>
               <ListItemText primary="Item List" />
             </ListItem>
@@ -325,27 +427,25 @@ const Sidebar = ({ userRole }) => {
 
             <ListItem
               className={classes.listItem}
-              onClick={() => handleItemClick("Wearhouse", "/wearhouse")}
+              onClick={() => handleItemClick("Wearhouse", "/warehouse")}
               selected={selected === "Wearhouse"}
               button
             >
               <ListItemIcon style={{ color: "#d7a022" }}>
-                <AddCircleOutlineIcon />
+                <Badge
+                  color="error"
+                  badgeContent={
+                    isNewDataWarehouse ? datasWarehouse.filter((data) => !data.read).length : 0
+                  }
+                >
+                  <AddCircleOutlineIcon sx={{ color: "#d7a022" }} />
+                </Badge>
               </ListItemIcon>
+
               <ListItemText primary="Wearhouse" />
+              {/* </Badge> */}
             </ListItem>
 
-            {/* <ListItem
-              className={classes.listItem}
-              onClick={() => handleItemClick("Add Product", "/addProduct")}
-              selected={selected === "Add Product"}
-              button
-            >
-              <ListItemIcon style={{ color: "#d7a022" }}>
-                <AddCircleOutlineIcon />
-              </ListItemIcon>
-              <ListItemText primary="Add Product" />
-            </ListItem> */}
             <ListItem
               className={classes.listItem}
               onClick={() => handleItemClick("Item List", "/items")}
@@ -353,9 +453,45 @@ const Sidebar = ({ userRole }) => {
               button
             >
               <ListItemIcon style={{ color: "#d7a022" }}>
-                <ListAltIcon />
+
+              <Badge
+                  color="error"
+                  badgeContent={
+                    isNewDataProduct ? datasProduct.filter((data) => !data.read).length : 0
+                  }
+                >
+                  <ListAltIcon sx={{ color: "#d7a022" }} />
+                </Badge>
+
               </ListItemIcon>
               <ListItemText primary="Item List" />
+            </ListItem>
+          </>
+        )}
+        {userRole === "Store" && (
+          <>
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("Dashboard", "/dashboard")}
+              selected={selected === "Dashboard"}
+              button
+            >
+              <ListItemIcon style={{ color: "#d7a022" }}>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+
+            <ListItem
+              className={classes.listItem}
+              onClick={() => handleItemClick("Store", "/store")}
+              selected={selected === "Store"}
+              button
+            >
+              <ListItemIcon style={{ color: "#d7a022" }}>
+                <ListAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Store" />
             </ListItem>
           </>
         )}

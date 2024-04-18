@@ -31,7 +31,9 @@ const dispatch = useDispatch();
   
   useEffect(() => {
     dispatch(fetchProductsAsync(location));
+    dispatch(fetchProductsAsync()); 
   }, [dispatch, location]);
+
 
   const handleSortRequest = (property) => {
     const isAsc = orderBy === property && order === "asc";

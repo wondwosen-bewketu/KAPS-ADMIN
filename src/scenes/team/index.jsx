@@ -163,7 +163,6 @@ const Team = () => {
 
   function renderImageCell(params) {
     const employee = employees.find((emp) => emp.id === params.row.id);
-    console.log("Employee:", employee.files);
 
     return employee && employee.files ? (
       <Button
@@ -183,7 +182,6 @@ const Team = () => {
 
   function renderImgCell(params) {
     const employee = employees.find((emp) => emp.id === params.row.id);
-    console.log("Employee:", employee);
 
     return employee ? (
       <img

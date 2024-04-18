@@ -9,6 +9,8 @@ import productReducer from "./slice/productSlice"; // Add userReducer
 import agentReducer from "./slice/agentSlice"; // Add userReducer
 import wearhouseReducer from "./slice/wearhouseSlice"; // Add userReducer
 
+import storeReducer from "./slice/storeSlice"; // Add userReducer
+
 const rootReducer = combineReducers({
   user: userReducer, // Add user reducer
   items: itemReducer,
@@ -18,6 +20,7 @@ const rootReducer = combineReducers({
   agent: agentReducer,
   wearhouse: wearhouseReducer,
   // Add other reducers here if needed
+  stores: storeReducer,
 });
 
 export default rootReducer;

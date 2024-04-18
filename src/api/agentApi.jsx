@@ -8,7 +8,6 @@ export const fetchAgentInfo = async (phone) => {
         "Content-Type": "application/json", // Example header
       },
     });
-    console.log("fetchAgentInfo response:", response.data);
     return response.data;
   } catch (error) {
     console.error("fetchAgentInfo error:", error);
@@ -25,7 +24,6 @@ export const updateAgentInfo = async (phone, formData) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log("updateAgentInfo response:", response.data); // Add this line
     return response.data;
   } catch (error) {
     console.error("updateAgentInfo error:", error); // Add this line

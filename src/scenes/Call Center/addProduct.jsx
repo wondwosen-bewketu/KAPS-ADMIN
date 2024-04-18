@@ -18,8 +18,9 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { styled } from "@mui/system";
-import { toast } from "react-toastify";
+import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {socket} from "../global/Sidebar"
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -28,6 +29,8 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   alignItems: "center",
   backgroundColor: theme.palette.background.default,
 }));
+
+
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -49,6 +52,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     },
   },
 }));
+
 
 const StyledButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(3),
@@ -94,13 +98,16 @@ const ProductForm = () => {
     url: "",
     quantity: "",
     unit: "",
+    farmerfile:null,
   });
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
+  
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -110,15 +117,62 @@ const ProductForm = () => {
     });
   };
 
+  const handleFarmerFileChange = (e) => {
+    const selectedFile = e.target.files;
+    setFormData({
+      ...formData,
+      farmerfile: selectedFile,
+    });
+  };
+
+  useEffect(() => {
+    // Function to handle successful form submission
+    const handlePostDataSuccess = (data) => {
+      toast.success(data.message);
+      setFormData({
+        productname: "",
+        catagory: "",
+        productprice: "",
+        farmername: "",
+        farmeraccount: "",
+        farmerfile: null,
+        agentphone: formData.agentphone,
+        productdescription: "",
+        productlocation: formData.productlocation,
+        file: null,
+        quantity: "",
+        unit: "",
+        url: "",
+      });
+    };
+  
+    // Function to handle form submission errors
+    const handlePostDataError = (error) => {
+      toast.error(error.error || "Failed to Register Agent. Please try again.");
+    };
+  
+    // Set up event listeners only once when the component mounts
+    socket.on("post_product_success", handlePostDataSuccess);
+    socket.on("post_product_error", handlePostDataError);
+  
+    // Clean up event listeners when component unmounts
+    return () => {
+      socket.off("post_product_success", handlePostDataSuccess);
+      socket.off("post_product_error", handlePostDataError);
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
 
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("productname", formData.productname);
       formDataToSend.append("productprice", formData.productprice);
-      formDataToSend.append("agentphone", formData.agentphone);
+      formDataToSend.append("farmername", formData.farmername);
+      formDataToSend.append("farmeraccount", formData.farmeraccount);
       formDataToSend.append("productdescription", formData.productdescription);
       formDataToSend.append("productlocation", formData.productlocation);
       formDataToSend.append("quantity", formData.quantity);
@@ -126,20 +180,9 @@ const ProductForm = () => {
       formDataToSend.append("file", formData.file);
       formDataToSend.append("url", formData.url);
 
-      await dispatch(postItemAsync(formDataToSend));
-
-      toast.success("Product added successfully");
-      setFormData({
-        productname: "",
-        productprice: "",
-        agentphone: "",
-        productdescription: "",
-        productlocation: "",
-        file: null,
-        quantity: "",
-        unit: "",
-        url: "",
-      });
+      // await dispatch(postItemAsync(formDataToSend));
+     
+      formData && socket.emit("post_product_data", formData);  
     } catch (error) {
       console.error("Error adding product:", error);
       if (
@@ -152,7 +195,6 @@ const ProductForm = () => {
         toast.error("Failed to add product");
       }
     }
-
     setLoading(false);
   };
 
@@ -216,6 +258,64 @@ const ProductForm = () => {
                 }}
               />
             </Grid>
+
+
+            <Grid item xs={12} sm={6}>
+              <StyledTextField
+                label="Farmer Name"
+                name="farmername"
+                fullWidth
+                value={formData.farmername}
+                onChange={handleChange}
+                required
+                variant="outlined"
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <StyledTextField
+                label="Farmer Account"
+                name="farmeraccount"
+                fullWidth
+                value={formData.farmeraccount}
+                onChange={handleChange}
+                required
+                variant="outlined"
+              />
+            </Grid>
+            
+     
+
+
+
+            <Grid item xs={12} sm={6}>
+
+            {/* <StyledLabel htmlFor="file-input">Choose File</StyledLabel>
+      <StyledInput
+        id="file-input"
+        type="file"
+        onChange={(e) => setFiles(e.target.files)} // Capture all selected files
+        accept="image/*"
+        multiple
+
+      /> */}
+      {/* //setFarmerfiles(e.target.files)} */}
+                 <input
+              type="file"
+              name="farmerfile"
+              onChange={handleFarmerFileChange}
+              accept="image/*"
+              multiple // Allow multiple file selection
+            />
+            </Grid>
+
+
+
+
+
+
+
+
             <Grid item xs={12} sm={6}>
               <StyledTextField
                 label="Agent Phone"
@@ -330,6 +430,18 @@ const ProductForm = () => {
             </Grid>
           </Grid>
         </form>
+
+        <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       </StyledPaper>
     </Container>
   );

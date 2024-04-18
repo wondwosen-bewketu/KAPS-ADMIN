@@ -56,7 +56,6 @@ const Items = () => {
 
   function renderImageCell(params) {
     const item = items.find((item) => item.id === params.row.id);
-    console.log(item)
     if (!item) return null;
 
     return item ? (

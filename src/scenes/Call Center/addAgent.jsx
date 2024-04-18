@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { postAgentAsync } from "../../redux/slice/userSlice";
 import {
@@ -13,10 +13,11 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { toast } from "react-toastify";
+import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import regionsAndCitiesData from "./regionsAndCityData.json";
 import { styled } from "@mui/system";
+import {socket} from "../global/Sidebar"
 
 const StyledContainer = styled(Container)({
   display: "flex",
@@ -130,37 +131,61 @@ const AgentForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      await dispatch(postAgentAsync(formData));
-       toast.success("Agent Registered successfully!");
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        password: "",
-        region: "",
-        city: "",
-        woreda: "",
-        bankName: "",
-        accNumber: "",
-      });
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      if (error.payload) {
-        // Display the specific error message received from the server
-        toast.error(
-          error.payload.message || "Failed to Register Agent. Please try again."
-        );
-      } else {
-        // Fallback error message
-        toast.error("Failed to Register Agent. Please try again.");
-      }
-    }
+ 
+// Inside your functional component...
+useEffect(() => {
+  // Function to handle successful form submission
+  const handlePostDataSuccess = (data) => {
+    toast.success(data.message);
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      password: "",
+      region: "",
+      city: "",
+      woreda: "",
+      bankName: "",
+      accNumber: "",
+    });
   };
 
+  // Function to handle form submission errors
+  const handlePostDataError = (error) => {
+    toast.error(error.error || "Failed to Register Agent. Please try again.");
+  };
+
+  // Set up event listeners only once when the component mounts
+  socket.on("post_data_success", handlePostDataSuccess);
+  socket.on("post_data_error", handlePostDataError);
+
+  // Clean up event listeners when component unmounts
+  return () => {
+    socket.off("post_data_success", handlePostDataSuccess);
+    socket.off("post_data_error", handlePostDataError);
+  };
+}, []); // Empty dependency array means this effect only runs once after the initial render
+
+// Rest of your functional component...
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    formData && socket.emit("post_data", formData);
+  } catch (error) {
+    console.error("Error submitting form:", error);
+
+    if (error.payload) {
+      // Display the specific error message received from the server
+      toast.error(
+        error.payload.message || "Failed to Register Agent. Please try again."
+      );
+    } else {
+      // Fallback error message
+      toast.error("Failed to Register Agent. Please try again.");
+    }
+  }
+};
   return (
     <StyledContainer>
       <StyledPaper elevation={3}>
@@ -319,6 +344,18 @@ const AgentForm = () => {
             </Grid>
           </Grid>
         </form>
+
+        <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       </StyledPaper>
     </StyledContainer>
   );

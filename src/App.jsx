@@ -9,6 +9,8 @@ import Sidebar from "./scenes/global/Sidebar";
 import AgentInfoComponent from "./scenes/Call Center/AgentInfoComponet";
 import { CartesianAxis } from "recharts";
 import { CardTravelRounded } from "@material-ui/icons";
+import Store from "./scenes/Store/store"
+
 const Settings = React.lazy(() => import("./scenes/user/Settings"));
 const Cart = React.lazy(() =>
   import("./scenes/Admin/Cart")
@@ -78,7 +80,7 @@ function PrivateRoutes() {
             <Route path="/agentLogin" element={<AgentLogin />} />
             <Route path="/setting" element={<Settings />} />
             <Route
-              path="/wearhouse"
+              path="/warehouse"
               element={
                 <WearHouse
                   onSelectLocation={(location) =>
@@ -102,6 +104,14 @@ function PrivateRoutes() {
             <Route path="/addItem" element={<AddItem />} />
             <Route path="/items" element={<Items />} />
             <Route path="/registeruser" element={<RegisterUser />} />
+          </Routes>
+        );
+        case "Store":
+        return (
+          <Routes>
+            <Route index element={<Navigate replace to="/dashboard" />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/store" element={<Store />} />
           </Routes>
         );
       case "Finance":

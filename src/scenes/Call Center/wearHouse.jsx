@@ -1,52 +1,78 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchLocationsAsync,
   selectWearhouseInfo,
 } from "../../redux/slice/wearhouseSlice";
-
 import { styled } from "@mui/system";
-import {Button} from "@mui/material";
+import {Button, Badge} from "@mui/material";
+import {socket} from "../global/Sidebar"
+import {
+  fetchProductsAsync,
+  selectProducts,
+} from "../../redux/slice/wearhouseSlice"; 
 
-    //styled button
-    const StyledButton = styled(Button)({
-      marginTop: "20px",
-      marginRight: "10px", // Added margin for spacing
-      background: "linear-gradient(45deg, #d7a022, #60a018)",
-      color: "white",
-      fontWeight: "bold",
-      "&:hover": {
-        background: "linear-gradient(45deg, #60a018, #d7a022)",
-      },
-    });
+
+const StyledButton = styled(Button)({
+  marginTop: "20px",
+  marginRight: "10px",
+  background: "linear-gradient(45deg, #d7a022, #60a018)",
+  color: "white",
+  fontWeight: "bold",
+  "&:hover": {
+    background: "linear-gradient(45deg, #60a018, #d7a022)",
+  },
+});
 
 const LocationList = ({ onSelectLocation }) => {
   const dispatch = useDispatch();
-  const wearhouseInfo = useSelector(selectWearhouseInfo);
-
-
-
-
-  // Pagination state
+  const wearhouseInfo = useSelector(selectWearhouseInfo);     
+  const { location } = useParams();
+  const products = useSelector(selectProducts);
+  const [datasEachwarehouse, setDatasEachwarehouse] = useState([]);
+  const [isNewDataEachwarehouse, setIsNewDataEachwarehouse] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20; // 5 columns * 4 rows = 20 items per page
+  const itemsPerPage = 20; 
 
   useEffect(() => {
     dispatch(fetchLocationsAsync());
-  }, [dispatch]);
+    dispatch(fetchProductsAsync());
+  }, [dispatch, location]);
 
+  useEffect(() => {
+    socket.emit("initial_Eachwarehouse_data");
+    socket.on("get_Eachwarehouse_data", getDataEachwarehouse);
+    socket.on("change_Eachwarehouse_data", changeDataEachwarehouse);
+    return () => {
+      socket.off("get_Eachwarehouse_data");
+      socket.off("change_Eachwarehouse_data");
+    };
+  }, []);
 
+  const getDataEachwarehouse = (datasEachwarehouse) => {
+    if (datasEachwarehouse.length && datasEachwarehouse.some((data) => data.read === false)) {
+      setIsNewDataEachwarehouse(true);
+    } else {
+      setIsNewDataEachwarehouse(false);
+    }
+    setDatasEachwarehouse(datasEachwarehouse);
+  };
 
-  // Calculate indexes for the items to display on the current page
+  const changeDataEachwarehouse = () => socket.emit("initial_Eachwarehouse_data");
+
+  const handleItemClick = (location) => {
+    onSelectLocation(location); 
+
+  };
+
+  
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = wearhouseInfo && wearhouseInfo.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItemsLength = currentItems?.length;
 
-  const currentItemsLength =currentItems?.length ;
- 
-
-
-  // Change page
   const nextPage = () => {
     setCurrentPage(currentPage + 1);
   };
@@ -65,7 +91,10 @@ const LocationList = ({ onSelectLocation }) => {
           currentItems.map((location) => (
             <div
               key={location._id}
+              onClick={() => handleItemClick(location.location)} // Add item click handler
               style={{
+                display: "flex",
+                alignItems: "center",
                 backgroundColor: "#d7a022",
                 borderRadius: "8px",
                 boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
@@ -74,21 +103,21 @@ const LocationList = ({ onSelectLocation }) => {
                 transition: "box-shadow 0.3s",
                 ":hover": { boxShadow: "0px 6px 8px rgba(0, 0, 0, 0.2)" },
               }}
-              onClick={() => onSelectLocation(location.location)}
             >
-              <p style={{ fontSize: "18px", fontWeight: "bold", margin: "0" }}>{location.location}</p>
+              <p style={{ fontSize: "17px", fontWeight: "bold", margin: "0" }}>{location.location}</p>
+              {/* Display notification counter */}
+             
             </div>
           ))}
       </div>
-      {/* Pagination buttons */}
       <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-      <StyledButton variant="contained" onClick={prevPage} disabled={currentPage === 1} >
-      Previous
-      </StyledButton>
-      <StyledButton variant="contained" onClick={nextPage} disabled={currentItemsLength < itemsPerPage} >
-      Next
-      </StyledButton>
-        </div>
+        <StyledButton variant="contained" onClick={prevPage} disabled={currentPage === 1} >
+          Previous
+        </StyledButton>
+        <StyledButton variant="contained" onClick={nextPage} disabled={currentItemsLength < itemsPerPage} >
+          Next
+        </StyledButton>
+      </div>
     </div>
   );
 };

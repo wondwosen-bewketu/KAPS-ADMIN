@@ -127,17 +127,10 @@ export const fetchItemsApi = async (page, pageSize) => {
       `${BASE_URL}product/getallItems?page=${page}&pageSize=${pageSize}`
     );
 
-    // Log the entire response
-    console.log(
-      "Response:",
-      `${BASE_URL}product/getallItems?page=${page}&pageSize=${pageSize}`
-    );
-
+  
     // Access the 'data' property of the response
     const responseData = response.data.data;
     const totalPage = response.data.totalPages; // Change to totalPage
-    console.log("Response data:", responseData); // Log response data
-    console.log("Response data totalPage:", totalPage); // Log response data
     // Check if responseData is an array
     if (!Array.isArray(responseData)) {
       throw new Error("Response data is not an array.");

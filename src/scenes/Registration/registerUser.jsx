@@ -122,6 +122,7 @@ const RegisterUserForm = () => {
                   <MenuItem value="Finance">Finance</MenuItem>
                   <MenuItem value="Oditor">Oditor</MenuItem>
                   <MenuItem value="General Manager">General Manager</MenuItem>
+                  <MenuItem value="Store">Store</MenuItem>
                   
                 </Select>
               </FormControl>
