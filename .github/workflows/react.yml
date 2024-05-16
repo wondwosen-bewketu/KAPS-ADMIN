@@ -25,18 +25,16 @@ jobs:
       - name: Build App
         run: npm run build
 
+      - name: Build Docker Image
+        run: |
+          docker build -t alegnta/admin-dash:latest .
+          echo "rn3B6fAAYX.!xZV" | docker login --username alegnta --password-stdin
+
+      - name: Push Docker Image
+        run: docker push alegnta/admin-dash:latest
+
       - name: Archive Production Build
         uses: actions/upload-artifact@v2
         with:
           name: build
           path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: build
