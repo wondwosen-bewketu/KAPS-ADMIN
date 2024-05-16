@@ -32,9 +32,3 @@ jobs:
 
       - name: Push Docker Image
         run: docker push alegnta/admin-dash:latest
-
-      - name: Archive Production Build
-        uses: actions/upload-artifact@v2
-        with:
-          name: build
-          path: dist
