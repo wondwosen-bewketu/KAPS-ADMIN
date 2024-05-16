@@ -159,10 +159,10 @@ function PrivateRoutes() {
         );
 
       default:
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/" replace />;
     }
   } else {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 }
 
@@ -239,8 +239,8 @@ function App() {
             </>
           ) : (
             <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/*" element={<Navigate to="/login" />} />
+              <Route path="/" element={<Login />} />
+              <Route path="/*" element={<Navigate to="/" />} />
             </Routes>
           )}
         </div>
