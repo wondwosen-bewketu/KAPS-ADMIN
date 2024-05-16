@@ -1,33 +1,42 @@
-name: React App Deployment
+name: Build and Deploy
 
 on:
   push:
     branches:
-      - main 
+      - main
   workflow_dispatch:
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2.1.5
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: "18.16.1"
+          node-version: '14'
 
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
 
-      - name: Build
+      - name: Build App
         run: npm run build
+
+      - name: Archive Production Build
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
