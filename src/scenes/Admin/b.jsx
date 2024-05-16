@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {
@@ -26,11 +28,9 @@ import {
   approveProduct,
   rejectProduct,
 } from "../../api/apiApproval";
-import { BASE_URL } from "../../api/baseURL";
 
 const AdminApproval = () => {
   const [products, setProducts] = useState([]);
-  const [openPriceConfirmation, setOpenPriceConfirmation] = useState(false);
   const [openConfirmation, setOpenConfirmation] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -39,8 +39,6 @@ const AdminApproval = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [pricingDetails, setPricingDetails] = useState(null); // State to store pricing details
   const [newDeliveryFee, setNewDeliveryFee] = useState(""); // State to store new delivery fee
-  const [adminReferral, setAdminReferral] = useState("");
-
 
   useEffect(() => {
     fetchProducts();
@@ -58,17 +56,13 @@ const AdminApproval = () => {
 
   const handleUpdateDeliveryFee = async () => {
     try {
-      console.log("Selected Product ID in handleUpdateDeliveryFee:", selectedProductId); // Debugging line
       setLoading(true);
-      if (!selectedProductId) {
-        throw new Error("Selected product ID is null");
-      }
       // Call the API to update the delivery fee
-      const response = await axios.put(`${BASE_URL}product/update-delivery-fee/${selectedProductId}`, { newDeliveryFee });
+      const response = await axios.put(`http://localhost:4000/product/update-delivery-fee/${selectedProductId}`, { newDeliveryFee });
       // Update the delivery fee in the pricing details
       setPricingDetails(response.data); // Assuming the response contains the updated pricing details
       toast.success("Delivery fee updated successfully");
-      setOpenPriceConfirmation(false);
+      setOpenConfirmation(false);
     } catch (error) {
       console.error("Error updating delivery fee:", error);
       toast.error("Failed to update delivery fee");
@@ -76,28 +70,22 @@ const AdminApproval = () => {
       setLoading(false);
     }
   };
-  
-  
+
   const handleAction = async () => {
     try {
       setLoading(true);
-      const endpoint =
-        actionType === "approve"
-          ? approveProduct(selectedProductId, adminReferral) // Pass admin referral
-          : rejectProduct(selectedProductId, adminReferral); // Pass admin referral
-  
-      await endpoint;
-  
+      let endpoint;
+      if (actionType === "approve") {
+        endpoint = await approveProduct(selectedProductId);
+      } else if (actionType === "reject") {
+        endpoint = await rejectProduct(selectedProductId);
+      }
+      // Assuming the endpoint returns the updated product status
+      const updatedProduct = await endpoint.json();
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
           product._id === selectedProductId
-            ? {
-                ...product,
-                approvalStatus:
-                  actionType === "approve"
-                    ? "Admin Approved"
-                    : "Admin Rejected",
-              }
+            ? { ...product, approvalStatus: updatedProduct.approvalStatus }
             : product
         )
       );
@@ -126,77 +114,32 @@ const AdminApproval = () => {
     setActionType("approve");
     setOpenConfirmation(true);
   };
-
+  
   const handleRejectClick = (productId) => {
     setSelectedProductId(productId);
     setActionType("reject");
     setOpenConfirmation(true);
   };
-
+  
   const handleCloseConfirmation = () => {
     setOpenConfirmation(false);
   };
 
-  const handleClosePriceConfirmation = () => {
-    setOpenPriceConfirmation(false);
-  };
-  
-  
-  const handleConfirmAction = async () => {
-    try {
-      setLoading(true);
-      let endpoint;
-      if (actionType === "approve") {
-        endpoint = await approveProduct(selectedProductId);
-      } else if (actionType === "reject") {
-        endpoint = await rejectProduct(selectedProductId);
-      }
-      const updatedProduct = await endpoint.json();
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product._id === selectedProductId
-            ? { ...product, approvalStatus: updatedProduct.approvalStatus }
-            : product
-        )
-      );
-      toast.success(
-        `Product ${
-          actionType === "approve" ? "approved" : "rejected"
-        } successfully`
-      );
-      setOpenPriceConfirmation(false);
-    } catch (error) {
-      console.error(
-        `Error ${
-          actionType === "approve" ? "approving" : "rejecting"
-        } product:`,
-        error.response.data.message
-      );
-      toast.error(error.response.data.message || "Failed to perform action");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handlePriceButtonClick = (productId) => {
-    console.log("Selected Product ID:", productId); // Debugging line
-    setSelectedProductId(productId); // Set selectedProductId when Price button is clicked
     // Fetch pricing details for the selected product
-    // You can use fetch or asny library like axios to make the API call
-    fetch(`${BASE_URL}product/pricing-details/${productId}`)
+    // You can use fetch or any library like axios to make the API call
+    fetch(`http://localhost:4000/product/pricing-details/${productId}`)
       .then((response) => response.json())
       .then((data) => {
         // Store pricing details in state and open modal
         setPricingDetails(data);
-        setOpenPriceConfirmation(true);
+        setOpenConfirmation(true);
       })
       .catch((error) => {
         console.error("Error fetching pricing details:", error);
         // Handle error if necessary
       });
   };
-  
-  
 
   const theme = createTheme({
     palette: {
@@ -255,69 +198,31 @@ const AdminApproval = () => {
                   <TableCell>{product.productdescription}</TableCell>
                   <TableCell>{product.agentphone}</TableCell>
                   <TableCell>{product.approvalStatus}</TableCell>
+                  <TableCell>{product.adminApprovalName}</TableCell>
                   <TableCell>
-  {product.adminApproval && product.adminApproval.fullName}
-</TableCell>
-
-
-                 
-                 <TableCell>
-                    {[
-                      "Admin Approved",
-                      "Quality Approved",
-                      "Inventory Approved",
-                      "Finance Approved",
-                      "CEO Approved",
-                    ].includes(product.approvalStatus) ? (
-                      <CheckCircleOutline sx={{ color: "green" }} />
-                    ) : [
-                        "Admin Rejected",
-                        "Quality Rejected",
-                        "Inventory Rejected",
-                        "Finance Rejected",
-                        "CEO Rejected",
-                      ].includes(product.approvalStatus) ? (
-                      <CancelOutlined sx={{ color: "red" }} />
-                    ) : (
-                      <>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => handleApproveClick(product._id)}
-                          disabled={loading}
-                        >
-                          {loading && selectedProductId === product._id ? (
-                            <CircularProgress size={24} color="inherit" />
-                          ) : (
-                            "Approve"
-                          )}
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handleRejectClick(product._id)}
-                          disabled={loading}
-                        >
-                          {loading && selectedProductId === product._id ? (
-                            <CircularProgress size={24} color="inherit" />
-                          ) : (
-                            "Reject"
-                          )}
-                        </Button>
-                      </>
-                    )}
-                
                     <Button
-  variant="outlined"
-  color="primary"
-  onClick={() => {
-    handlePriceButtonClick(product._id);
-    setSelectedProductId(product._id); // Set selectedProductId when Price button is clicked
-  }}
->
-  Price
-</Button>
-
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleApproveClick(product._id)}
+                      disabled={loading}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={() => handleRejectClick(product._id)}
+                      disabled={loading}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => handlePriceButtonClick(product._id)}
+                    >
+                      Price
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -336,14 +241,16 @@ const AdminApproval = () => {
         />
       </div>
 
-      <Dialog open={openPriceConfirmation} onClose={handleClosePriceConfirmation}>
+      <Dialog open={openConfirmation} onClose={handleCloseConfirmation}>
         <DialogTitle style={{ backgroundColor: "#1976d2", color: "#fff" }}>
           Price Details
         </DialogTitle>
         <DialogContent style={{ backgroundColor: "#f5f5f5" }}>
           {pricingDetails && (
             <div>
-             
+              <p>
+                <strong>Tax:</strong> {pricingDetails.tax}
+              </p>
               <p>
                 <strong>Item Price:</strong> {pricingDetails.itemPrice}
               </p>
@@ -353,10 +260,9 @@ const AdminApproval = () => {
               <p>
                 <strong>Product Price:</strong> {pricingDetails.productprice}
               </p>
-              <p>labor Cost: {pricingDetails.laborCost}</p>
-        <p>Delivery Fee: {pricingDetails.deliveryFee}</p>
-        <p>Packing Cost: {pricingDetails.fertilizerCost}</p>
-        <p>productNetPrice: {pricingDetails.productNetPrice}</p>
+              <p>
+                <strong>Service Charge:</strong> {pricingDetails.serviceCharge}
+              </p>
               <TextField
                 label="Delivery Fee"
                 variant="outlined"
@@ -373,61 +279,21 @@ const AdminApproval = () => {
         </DialogContent>
         <DialogActions style={{ backgroundColor: "#f5f5f5" }}>
           <Button
-            onClick={handleClosePriceConfirmation}
+            onClick={handleCloseConfirmation}
             style={{ color: "#1976d2" }}
             disabled={loading}
           >
             Close
           </Button>
           <Button
-  onClick={() => handleUpdateDeliveryFee(pricingDetails.productId)} // Pass productId as an argument
-  color="primary"
-  disabled={loading}
->
-  Update Delivery Fee
-</Button>
-
+            onClick={handleUpdateDeliveryFee}
+            color="primary"
+            disabled={loading}
+          >
+            Update Delivery Fee
+          </Button>
         </DialogActions>
       </Dialog>
-
-      <Dialog open={openConfirmation} onClose={handleCloseConfirmation}>
-  <DialogTitle>Confirm Action</DialogTitle>
-  <DialogContent>
-    <TextField
-      label="Admin Referral"
-      variant="outlined"
-      value={adminReferral}
-      onChange={(e) => setAdminReferral(e.target.value)}
-      fullWidth
-      style={{ marginBottom: "10px" }}
-    />
-    Are you sure you want to{" "}
-    {actionType === "approve" ? "approve" : "reject"} this product?
-  </DialogContent>
-  <DialogActions>
-    <Button
-      onClick={handleCloseConfirmation}
-      color="secondary"
-      disabled={loading}
-    >
-      Cancel
-    </Button>
-    <Button
-      onClick={handleAction}
-      color={actionType === "approve" ? "primary" : "secondary"}
-      autoFocus
-      disabled={loading}
-    >
-      {loading ? (
-        <CircularProgress size={24} color="inherit" />
-      ) : actionType === "approve" ? (
-        "Approve"
-      ) : (
-        "Reject"
-      )}
-    </Button>
-  </DialogActions>
-</Dialog>
 
       <ToastContainer
         position="bottom-right"
@@ -439,3 +305,4 @@ const AdminApproval = () => {
 };
 
 export default AdminApproval;
+

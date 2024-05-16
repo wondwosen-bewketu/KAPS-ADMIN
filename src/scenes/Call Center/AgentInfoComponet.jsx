@@ -92,20 +92,13 @@ const AgentInfoComponent = () => {
       if (files) {
         // Append each file from the files array
         for (let i = 0; i < files.length; i++) {
-          console.log({ files });
           formData.append(`files`, files[i]);
         }
-
-        // files.forEach((file, index) => {
-        //   console.log({ index });
-        //   console.log({ files });
-        //   formData.append(`files`, file);
-        // });
       }
       await dispatch(updateAgentInfoAsync({ phone, formData }));
       setIsModalOpen(false);
       setIsLoading(false);
-      window.location.reload();
+      window.location.reload();  
     } catch (error) {
       console.error("Error updating agent info:", error);
       setIsLoading(false);
@@ -114,11 +107,8 @@ const AgentInfoComponent = () => {
 
   const handleImageClick = (imageUrl) => {
     setSelectedImage(imageUrl);
-    console.log(imageUrl);
     setImageModalOpen(true);
   };
-
-
 
 
   const handleNext = () => {
@@ -130,15 +120,6 @@ const AgentInfoComponent = () => {
   };
 
 
-  
-  // const handlePdfClick = () => {
-  //   if (agentInfo && agentInfo.files && agentInfo.files.length > 0) {
-  //     // Iterate over each file and open its URL in a new tab
-  //     agentInfo.files.forEach((file) => {
-  //       window.open(file.url, "_blank");
-  //     });
-  //   }
-  // };
 
   const handleAddProduct = () => {
     navigate(
@@ -146,7 +127,6 @@ const AgentInfoComponent = () => {
     );
   };
 
-  console.log(agentInfo);
 
   return (
     <StyledPaper elevation={3}>

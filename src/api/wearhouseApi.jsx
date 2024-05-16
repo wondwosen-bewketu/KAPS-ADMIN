@@ -8,7 +8,7 @@ export const fetchLocations = async () => {
         "Content-Type": "application/json",
       },
     });
-    console.log("fetchLocations response:", response.data);
+    // console.log("fetchLocations response:", response.data);
     return response.data;
   } catch (error) {
     console.error("fetchLocations error:", error);

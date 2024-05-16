@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Box, Modal, CircularProgress } from "@mui/material"; // Import CircularProgress for loading spinner
+// Import useState and useEffect
+import React, { useState, useEffect } from "react";
+import { Box, Modal, CircularProgress, Button } from "@mui/material"; // Import Button component
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../components/Header";
@@ -9,6 +10,7 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { BASE_URL } from "../../api/baseURL";
 
 const Items = () => {
   const dispatch = useDispatch();
@@ -19,6 +21,7 @@ const Items = () => {
   const [isImageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isLoading, setLoading] = useState(false); // State for loading status
+  const [pricingDetails, setPricingDetails] = useState(null); // State to store pricing details
 
   useEffect(() => {
     setLoading(true); // Set loading state to true when fetching starts
@@ -54,9 +57,24 @@ const Items = () => {
     setImageModalOpen(true);
   };
 
+  const handlePriceButtonClick = (productId) => {
+    // Fetch pricing details for the selected product
+    // You can use fetch or any library like axios to make the API call
+    fetch(`${BASE_URL}product/pricing-details/${productId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        // Store pricing details in state and open modal
+        setPricingDetails(data);
+        setImageModalOpen(true);
+      })
+      .catch((error) => {
+        console.error("Error fetching pricing details:", error);
+        // Handle error if necessary
+      });
+  };
+
   function renderImageCell(params) {
     const item = items.find((item) => item.id === params.row.id);
-    console.log(item)
     if (!item) return null;
 
     return item ? (
@@ -106,6 +124,19 @@ const Items = () => {
           day: "numeric",
         }),
     },
+    {
+      field: "price",
+      headerName: "Price",
+      flex: 1,
+      renderCell: (params) => (
+        <Button
+          variant="outlined"
+          onClick={() => handlePriceButtonClick(params.row._id)}
+        >
+          Price
+        </Button>
+      ),
+    },
   ];
 
   return (
@@ -130,7 +161,7 @@ const Items = () => {
             components={{ Toolbar: GridToolbar }}
             // pageSize={10}
             rowsPerPageOptions={[10]}
-            pageSizeOptions={[10,25,50,100]}
+            pageSizeOptions={[10, 25, 50, 100]}
             checkboxSelection
             getRowId={(row) => row._id}
             initialState={{
@@ -144,33 +175,39 @@ const Items = () => {
           <div>No data available</div>
         )}
 
-        <Modal open={isImageModalOpen} onClose={() => setImageModalOpen(false)}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "white",
-              boxShadow: 24,
-              borderRadius: 8,
-              p: 4,
-            }}
-          >
-            {selectedImage && (
-              <img
-                src={selectedImage}
-                alt="avatar"
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "70vh", // Set maximum height to prevent the image from becoming too large
-                  objectFit: "contain",
-                  marginBottom: "10px", // Optional: Add margin between images
-                }}
-              />
-            )}
-          </Box>
-        </Modal>
+<Modal open={isImageModalOpen} onClose={() => setImageModalOpen(false)}>
+  <Box
+    sx={{
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 400,
+      bgcolor: "background.paper",
+      boxShadow: 24,
+      borderRadius: 8,
+      p: 4,
+      outline: "none", // Remove default outline
+    }}
+  >
+    <h2 style={{ marginBottom: 20 }}>Pricing Details</h2>
+    {pricingDetails && (
+      <div>
+       
+        <p>Quantity: {pricingDetails.quantity}</p>
+        <p>Product Price: {pricingDetails.productprice}</p>
+        <p>Item Price: {pricingDetails.itemPrice}</p>
+        <p>labor Cost: {pricingDetails.laborCost}</p>
+        <p>Delivery Fee: {pricingDetails.deliveryFee}</p>
+        <p>fertilizerCost: {pricingDetails.fertilizerCost}</p>
+        <p>Total Price: {pricingDetails.totalPrice}</p>
+        <p>productNetPrice: {pricingDetails.productNetPrice}</p>
+      </div>
+    )}
+    <Button variant="contained" onClick={() => setImageModalOpen(false)}>Close</Button>
+  </Box>
+</Modal>
+
         <Box mt={2} textAlign="center">
           <IconButton onClick={handleFirstPage} disabled={page === 1}>
             <FirstPageIcon />

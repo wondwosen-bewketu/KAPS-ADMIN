@@ -9,7 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField, // Import TextField for input field
+  TextField,
   Paper,
   Button,
   Dialog,
@@ -22,13 +22,13 @@ import { CheckCircleOutline, CancelOutlined } from "@mui/icons-material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const InventoryApproval = () => {
+const FinanceApproval = () => {
   const [products, setProducts] = useState([]);
   const [openConfirmation, setOpenConfirmation] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [actionType, setActionType] = useState("");
-  const [inventoryReferral, setInventoryReferral] = useState(""); // New state for inventory referral input
+  const [referral, setReferral] = useState(""); // New state for referral input
 
   useEffect(() => {
     fetchProducts();
@@ -37,17 +37,12 @@ const InventoryApproval = () => {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${BASE_URL}approval/inventoryApproval`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${BASE_URL}approval/products`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setProducts(response.data.products);
-      console.log("Products");
-      console.log(products);
     } catch (error) {
       console.error("Error fetching products:", error);
       toast.error("Failed to fetch products");
@@ -59,13 +54,13 @@ const InventoryApproval = () => {
       setLoading(true);
       const endpoint =
         actionType === "approve"
-          ? `${BASE_URL}approval/${selectedProductId}/inventory-approval`
-          : `${BASE_URL}approval/${selectedProductId}/inventory-rejected`;
+          ? `${BASE_URL}approval/${selectedProductId}/finance-approval`
+          : `${BASE_URL}approval/${selectedProductId}/finance-rejected`;
 
       const token = localStorage.getItem("token");
       await axios.put(
         endpoint,
-        { inventoryReferral }, // Include inventory referral in the request body
+        { referral }, // Include referral in the request body
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -80,8 +75,8 @@ const InventoryApproval = () => {
                 ...product,
                 approvalStatus:
                   actionType === "approve"
-                    ? "Inventory Approved"
-                    : "Inventory Rejected",
+                    ? "Finance Approved"
+                    : "Finance Rejected",
               }
             : product
         )
@@ -109,14 +104,14 @@ const InventoryApproval = () => {
     setSelectedProductId(productId);
     setActionType("approve");
     setOpenConfirmation(true);
-    setInventoryReferral(""); // Clear inventory referral input
+    setReferral(""); // Clear referral input
   };
 
   const handleRejectClick = (productId) => {
     setSelectedProductId(productId);
     setActionType("reject");
     setOpenConfirmation(true);
-    setInventoryReferral(""); // Clear inventory referral input
+    setReferral(""); // Clear referral input
   };
 
   const handleCloseConfirmation = () => {
@@ -137,7 +132,7 @@ const InventoryApproval = () => {
   return (
     <ThemeProvider theme={theme}>
       <div>
-        <h2>Inventory Approval</h2>
+        <h2>Finance Approval</h2>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -147,7 +142,10 @@ const InventoryApproval = () => {
                 <TableCell>Location</TableCell>
                 <TableCell>Description</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Approved/Rejected By</TableCell>{" "}
+                <TableCell>Admin Approved By</TableCell>
+                <TableCell>Finance Approved By</TableCell>
+                <TableCell>Auditor Approved By</TableCell>
+                <TableCell>General Manager Approved By</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -159,13 +157,28 @@ const InventoryApproval = () => {
                   <TableCell>{product.productlocation}</TableCell>
                   <TableCell>{product.productdescription}</TableCell>
                   <TableCell>{product.approvalStatus}</TableCell>
-                  <TableCell>{product.inventoryApprovalName}</TableCell>{" "}
+                
                   <TableCell>
-                    {product.approvalStatus === "Quality Approved" && (
+                    {product.adminApproval && product.adminApproval.fullName}
+                  </TableCell>
+                  <TableCell>
+                    {product.financeApproval &&
+                      product.financeApproval.fullName}
+                  </TableCell>
+                  <TableCell>
+                    {product.oditorApproval && product.oditorApproval.fullName}
+                  </TableCell>
+                  <TableCell>
+                    {product.generalManagerApproval &&
+                      product.generalManagerApproval.fullName}
+                  </TableCell>
+
+                  <TableCell>
+                    {product.approvalStatus === "Admin Approved" && (
                       <>
-                        {product.approvalStatus === "Inventory Approved" ? (
+                        {product.approvalStatus === "Finance Approved" ? (
                           <CheckCircleOutline sx={{ color: "green" }} />
-                        ) : product.approvalStatus === "Inventory Rejected" ? (
+                        ) : product.approvalStatus === "Finance Rejected" ? (
                           <CancelOutlined sx={{ color: "red" }} />
                         ) : (
                           <>
@@ -207,28 +220,22 @@ const InventoryApproval = () => {
           <DialogTitle>Confirm Action</DialogTitle>
           <DialogContent>
             <TextField
-              autoFocus
               margin="dense"
-              id="inventoryReferral"
-              label="Inventory Referral (optional)"
+              id="referral"
+              label={referral ? "Referral" : "Referral (optional)"}
               type="text"
               fullWidth
-              value={inventoryReferral}
-              onChange={(e) => setInventoryReferral(e.target.value)}
+              value={referral}
+              onChange={(e) => setReferral(e.target.value)}
             />
           </DialogContent>
           <DialogActions>
-            <Button
-              onClick={handleCloseConfirmation}
-              color="secondary"
-              disabled={loading}
-            >
+            <Button onClick={handleCloseConfirmation} color="primary">
               Cancel
             </Button>
             <Button
               onClick={handleAction}
               color={actionType === "approve" ? "primary" : "secondary"}
-              autoFocus
               disabled={loading}
             >
               {loading ? (
@@ -251,4 +258,4 @@ const InventoryApproval = () => {
   );
 };
 
-export default InventoryApproval;
+export default FinanceApproval;

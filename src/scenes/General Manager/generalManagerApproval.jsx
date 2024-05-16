@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { BASE_URL } from "../../api/baseURL";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import {
+  createTheme,
+  ThemeProvider,
+
+} from "@mui/material/styles";
+import { withStyles } from "@mui/styles";
+
 import {
   Table,
   TableBody,
@@ -9,7 +15,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
   Paper,
   Button,
   Dialog,
@@ -17,18 +22,42 @@ import {
   DialogContent,
   DialogTitle,
   CircularProgress,
+  Typography,
 } from "@mui/material";
 import { CheckCircleOutline, CancelOutlined } from "@mui/icons-material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const QualityApproval = () => {
+// Define custom styles for the table
+const StyledTableCell = withStyles((theme) => ({
+  head: {
+  
+    color: theme.palette.common.black,
+    fontWeight: "bold",
+  },
+  body: {
+    fontSize: 14,
+  },
+}))(TableCell);
+
+// Define custom theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#1976d2",
+    },
+    secondary: {
+      main: "#d32f2f",
+    },
+  },
+});
+
+const GeneralManagerApproval = () => {
   const [products, setProducts] = useState([]);
   const [openConfirmation, setOpenConfirmation] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [actionType, setActionType] = useState("");
-  const [referral, setReferral] = useState(""); // New state for referral input
 
   useEffect(() => {
     fetchProducts();
@@ -37,7 +66,7 @@ const QualityApproval = () => {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${BASE_URL}approval/qualityApproval`, {
+      const response = await axios.get(`${BASE_URL}approval/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -54,13 +83,13 @@ const QualityApproval = () => {
       setLoading(true);
       const endpoint =
         actionType === "approve"
-          ? `${BASE_URL}approval/${selectedProductId}/quality-approval`
-          : `${BASE_URL}approval/${selectedProductId}/quality-rejected`;
+          ? `${BASE_URL}approval/${selectedProductId}/generalManager-approval`
+          : `${BASE_URL}approval/${selectedProductId}/generalManager-rejected`;
 
       const token = localStorage.getItem("token");
       await axios.put(
         endpoint,
-        { referral }, // Include referral in the request body
+        null,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -75,8 +104,8 @@ const QualityApproval = () => {
                 ...product,
                 approvalStatus:
                   actionType === "approve"
-                    ? "Quality Approved"
-                    : "Quality Rejected",
+                    ? "General Manager Approved"
+                    : "General Manager Rejected",
               }
             : product
         )
@@ -104,46 +133,36 @@ const QualityApproval = () => {
     setSelectedProductId(productId);
     setActionType("approve");
     setOpenConfirmation(true);
-    setReferral(""); // Clear referral input
   };
 
   const handleRejectClick = (productId) => {
     setSelectedProductId(productId);
     setActionType("reject");
     setOpenConfirmation(true);
-    setReferral(""); // Clear referral input
   };
 
   const handleCloseConfirmation = () => {
     setOpenConfirmation(false);
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: "#1976d2", // Updated primary color
-      },
-      secondary: {
-        main: "#d32f2f", // Updated secondary color
-      },
-    },
-  });
-
   return (
     <ThemeProvider theme={theme}>
       <div>
-        <h2>Quality Approval</h2>
+        <h2>General Manager Approval</h2>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Product Name</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Approved/Rejected By</TableCell>{" "}
-                <TableCell>Actions</TableCell>
+                <StyledTableCell>Product Name</StyledTableCell>
+                <StyledTableCell>Price</StyledTableCell>
+                <StyledTableCell>Location</StyledTableCell>
+                <StyledTableCell>Description</StyledTableCell>
+                <StyledTableCell>Status</StyledTableCell>
+                <StyledTableCell>Admin Approved By</StyledTableCell>
+                <StyledTableCell>Finance Approved By</StyledTableCell>
+                <StyledTableCell>Auditor Approved By</StyledTableCell>
+                <StyledTableCell>General Manager Approved By</StyledTableCell>
+                <StyledTableCell>Actions</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -154,13 +173,28 @@ const QualityApproval = () => {
                   <TableCell>{product.productlocation}</TableCell>
                   <TableCell>{product.productdescription}</TableCell>
                   <TableCell>{product.approvalStatus}</TableCell>
-                  <TableCell>{product.qualityApprovalName}</TableCell>{" "}
                   <TableCell>
-                    {product.approvalStatus === "Admin Approved" && (
+                    {product.adminApproval && product.adminApproval.fullName}
+                  </TableCell>
+                  <TableCell>
+                    {product.financeApproval &&
+                      product.financeApproval.fullName}
+                  </TableCell>
+                  <TableCell>
+                    {product.oditorApproval && product.oditorApproval.fullName}
+                  </TableCell>
+                  <TableCell>
+                    {product.generalManagerApproval &&
+                      product.generalManagerApproval.fullName}
+                  </TableCell>
+                  <TableCell>
+                    {product.approvalStatus === "Oditor Approved" && (
                       <>
-                        {product.approvalStatus === "Quality Approved" ? (
+                        {product.approvalStatus ===
+                        "General Manager Approved" ? (
                           <CheckCircleOutline sx={{ color: "green" }} />
-                        ) : product.approvalStatus === "Quality Rejected" ? (
+                        ) : product.approvalStatus ===
+                          "General Manager Rejected" ? (
                           <CancelOutlined sx={{ color: "red" }} />
                         ) : (
                           <>
@@ -199,25 +233,27 @@ const QualityApproval = () => {
           </Table>
         </TableContainer>
         <Dialog open={openConfirmation} onClose={handleCloseConfirmation}>
-          <DialogTitle>Confirm Action</DialogTitle>
+          <DialogTitle>
+            Confirm {actionType === "approve" ? "Approval" : "Rejection"}
+          </DialogTitle>
           <DialogContent>
-            <TextField
-              margin="dense"
-              id="referral"
-              label={referral ? "Referral" : "Referral (optional)"}
-              type="text"
-              fullWidth
-              value={referral}
-              onChange={(e) => setReferral(e.target.value)}
-            />
+            <Typography variant="body1" gutterBottom>
+              Are you sure you want to{" "}
+              {actionType === "approve" ? "approve" : "reject"} this product?
+            </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseConfirmation} color="primary">
+            <Button
+              onClick={handleCloseConfirmation}
+              color="secondary"
+              disabled={loading}
+            >
               Cancel
             </Button>
             <Button
               onClick={handleAction}
               color={actionType === "approve" ? "primary" : "secondary"}
+              autoFocus
               disabled={loading}
             >
               {loading ? (
@@ -240,4 +276,4 @@ const QualityApproval = () => {
   );
 };
 
-export default QualityApproval;
+export default GeneralManagerApproval;

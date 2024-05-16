@@ -57,7 +57,7 @@ export const postUserAsync = createAsyncThunk(
 );
 
 export const postAgentAsync = createAsyncThunk(
-  "user/postAgent",
+  "post_data",
   async (formData, { rejectWithValue }) => {
     try {
       const response = await postAgent(formData);

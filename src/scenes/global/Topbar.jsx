@@ -37,6 +37,7 @@ const Topbar = () => {
     dispatch(logout());
     toast.success("Logout successful"); // Display success toast for logout
     navigate("/login");
+    window.location.reload();
     setAnchorEl(null); // Close the popover after logout
   };
 

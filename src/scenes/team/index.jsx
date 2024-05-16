@@ -41,7 +41,6 @@ const Team = () => {
   const [actionType, setActionType] = useState(""); // "block" or "unblock"
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  
   const [isImageModalOpen, setImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -163,7 +162,6 @@ const Team = () => {
 
   function renderImageCell(params) {
     const employee = employees.find((emp) => emp.id === params.row.id);
-    console.log("Employee:", employee.files);
 
     return employee && employee.files ? (
       <Button
@@ -183,7 +181,6 @@ const Team = () => {
 
   function renderImgCell(params) {
     const employee = employees.find((emp) => emp.id === params.row.id);
-    console.log("Employee:", employee);
 
     return employee ? (
       <img

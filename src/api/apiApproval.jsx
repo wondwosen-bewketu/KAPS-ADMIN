@@ -20,52 +20,38 @@ export const setAuthHeaders = () => {
 
 export const fetchAdminApprovalProducts = async () => {
   try {
-    const token = localStorage.getItem("token");
-    const response = await axios.get(`${BASE_URL}approval/adminApproval`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data.products;
+    setAuthHeaders(); // Set authorization headers before making the request
+    const response = await api.get("approval/products");
+    const products = response.data.products;
+    return products.reverse(); // Reverse the array to display newest to oldest
   } catch (error) {
     console.error("Error fetching products:", error);
     throw new Error("Failed to fetch products");
   }
 };
 
-export const approveProduct = async (productId) => {
+export const approveProduct = async (productId, adminReferral) => {
   try {
     setAuthHeaders();
-    const token = localStorage.getItem("token");
-    await axios.put(
-      `${BASE_URL}approval/${productId}/adminApproval`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api.put(`approval/${productId}/adminApproval`, { adminReferral });
+    // Assuming the response contains the updated product
+    return response.data;
   } catch (error) {
     console.error("Error approving product:", error.response.data.message);
     throw new Error(error.response.data.message || "Failed to approve product");
   }
 };
 
-export const rejectProduct = async (productId) => {
+export const rejectProduct = async (productId, adminReferral) => {
   try {
-    const token = localStorage.getItem("token");
-    await axios.put(
-      `${BASE_URL}approval/${productId}/adminrejected`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    setAuthHeaders();
+    const response = await api.put(`approval/${productId}/adminrejected`, { adminReferral });
+    // Assuming the response contains the updated product
+    return response.data;
   } catch (error) {
     console.error("Error rejecting product:", error.response.data.message);
     throw new Error(error.response.data.message || "Failed to reject product");
   }
 };
+
+export default api;
