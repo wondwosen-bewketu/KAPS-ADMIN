@@ -1,132 +1,186 @@
-{
-  "regions": [
-    {
-      "name": "Addis Ababa",
-      "cities": [
-        "Bole",
-        "Yeka",
-        "Ledeta",
-        "Lemikura",
-        "Arada",
-        "Addis Ketema",
-        "Akaky Kaliti",
-        "Gullele",
-        "Kirkos",
-        "Kolfe Kerani",
-        "Nifas Silk-Lafto"
-      ]
-    },
-    {
-      "name": "Amhara",
-      "cities": [
-        "Bahir Dar",
-        "Gonder",
-        "Dessie",
-        "Debre Birhan",
-        "Debre Mark'os",
-        "Kombolcha",
-        "Weldiya",
-        "Debre Tabor",
-        "Debre Mark'os",
-        "Kobo",
-        "Dangila",
-        "Mota"
-      ]
-    },
-    {
-      "name": "Oromia",
-      "cities": [
-        "Adama",
-        "Nekemte",
-        "Jimma",
-        "Bishoftu",
-        "Shashamane",
-        "Arsi Negele",
-        "Sebeta",
-        "Burayu",
-        "Ambo",
-        "Batu",
-        "Adwa",
-        "Waliso",
-        "Mojo",
-        "Dembi Dolo",
-        "Fiche",
-        "Bule Hora Town",
-        "Bale Robe",
-        "Goba"
-      ]
-    },
-    {
-      "name": "Tigray",
-      "cities": [
-        "Mekelle",
-        "Adigrat",
-        "Axum",
-        "Shire (Inda Selassie)",
-        "Aksum",
-        "Mekelle"
-      ]
-    },
-    {
-      "name": "SNNPR",
-      "cities": [
-        "Sodo",
-        "Arba Minch",
-        "Hosaena",
-        "Dilla",
-        "Areka",
-        "Boditi",
-        "Yirgalem",
-        "Butajira",
-        "Sawla",
-        "Mizan Teferi",
-        "Welkite",
-        "Negele Borana",
-        "Alaba Kulito",
-        "Bonga",
-        "Dimtu",
-        "Gedeo",
-        "Hadiya",
-        "Chiro",
-        "Tepi",
-        "Durame",
-        "Welkite",
-        "Meki",
-        "Alamata",
-        "Jinka",
-        "Dimtu",
-        "Agaro",
-        "Metu"
-      ]
-    },
-    {
-      "name": "Dire Dawa",
-      "cities": ["Dire Dawa"]
-    },
-    {
-      "name": "Sidama",
-      "cities": ["Awassa", "Yirgalem"]
-    },
-    {
-      "name": "Somali",
-      "cities": ["Jijiga", "Gode", "Degehabur"]
-    },
-    {
-      "name": "Harar",
-      "cities": ["Harar"]
-    },
-    {
-      "name": "Benishangul-Gumuz",
-      "cities": ["Assosa"]
-    },
-    {
-      "name": "Gambela",
-      "cities": ["Gambela"]
-    },
+import React, { useState } from 'react';
+import axios from 'axios';
+import { FormControl, InputLabel, MenuItem, Select, TextField, Button, Container, Typography, Grid } from '@mui/material';
 
-    {
-      "name": "Somali",
-      "cities": ["Gode", "Degehabur"]
+const BASE_URL_MEMBER = "http://localhost:4000/api/member/new";
+const categories = ["Downtown", "Midtown", "Suburban", "Family House", "Business House"];
+const housingLocations = [
+  "Bole",
+  "Yeka",
+  "Ledeta",
+  "Lemikura",
+  "Arada",
+  "Addis Ketema",
+  "Akaky Kaliti",
+  "Gullele",
+  "Kirkos",
+  "Kolfe Kerani",
+  "Nifas Silk-Lafto"
+];
+
+const MemberRegistrationForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    housingLocation: '',
+    category: '',
+    additionalInfo: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(BASE_URL_MEMBER, formData);
+      console.log(response.data);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        housingLocation: '',
+        category: '',
+        additionalInfo: ''
+      });
+    } catch (error) {
+      console.error('Error saving data:', error);
     }
-  ]
-}
+  };
+
+  return (
+    <Container maxWidth="md" style={styles.container}>
+      <Typography variant="h4" style={styles.title}>Register Member</Typography>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="name"
+              label="Name"
+              variant="outlined"
+              fullWidth
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              name="email"
+              label="Email"
+              type="email"
+              variant="outlined"
+              fullWidth
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Housing Location</InputLabel>
+              <Select
+                name="housingLocation"
+                value={formData.housingLocation}
+                onChange={handleChange}
+                label="Housing Location"
+                required
+              >
+                {housingLocations.map((location, index) => (
+                  <MenuItem key={index} value={location}>
+                    {location}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Category</InputLabel>
+              <Select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                label="Category"
+                required
+              >
+                {categories.map((category, index) => (
+                  <MenuItem key={index} value={category}>
+                    {category}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="phone"
+              label="Phone"
+              variant="outlined"
+              fullWidth
+              value={formData.phone}
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="address"
+              label="Address"
+              variant="outlined"
+              fullWidth
+              value={formData.address}
+              onChange={handleChange}
+              required
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="additionalInfo"
+              label="Additional Information"
+              variant="outlined"
+              fullWidth
+              value={formData.additionalInfo}
+              onChange={handleChange}
+              multiline
+              rows={4}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button type="submit" variant="contained" color="primary" style={styles.button}>
+              Register
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+    </Container>
+  );
+};
+
+const styles = {
+  container: {
+    marginTop: '50px',
+    padding: '20px',
+    borderRadius: '10px',
+    backgroundColor: '#f5f5f5',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: '20px',
+    fontWeight: 'bold',
+  },
+  form: {
+    width: '100%',
+  },
+  button: {
+    marginTop: '20px',
+    padding: '10px',
+  }
+};
+
+export default MemberRegistrationForm;
