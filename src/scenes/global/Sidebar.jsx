@@ -23,7 +23,7 @@ import {
 } from "../../redux/slice/wearhouseSlice";
 import socketIOClient from "socket.io-client";
 
-export const socket = socketIOClient("https://kaps-api.purposeblacketh.com/");
+export const socket = socketIOClient("https://kaps-api.purposeblacketh.com");
 
 const drawerWidth = 280;
 
