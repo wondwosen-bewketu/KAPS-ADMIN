@@ -1,5 +1,5 @@
-=
-//export const BASE_URL = "http://localhost:4000/";
+
+// export const BASE_URL = "http://localhost:4000/";
 
 import socketIOClient from "socket.io-client";
 
