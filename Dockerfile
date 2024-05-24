@@ -1,17 +1,9 @@
-FROM node:10.4-alpine AS builder
+FROM node:14
 
 WORKDIR /app
-
 COPY package*.json ./
-
-RUN npm install
-
 COPY . .
 
-RUN npm run build
+RUN npm ci
 
-FROM nginx:alpine
-
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start"]
