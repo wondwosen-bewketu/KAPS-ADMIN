@@ -79,6 +79,7 @@ const StyledButton = styled(Button)({
 
 const AgentForm = () => {
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -167,6 +168,7 @@ useEffect(() => {
 // Rest of your functional component...
 const handleSubmit = async (e) => {
   e.preventDefault();
+  setLoading(true);
 
   try {
     formData && socket.emit("post_data", formData);
@@ -260,45 +262,32 @@ const handleSubmit = async (e) => {
                   </StyledFormControl>
                 </Grid>
                 <Grid item xs={4}>
-                  <StyledFormControl>
-                    <InputLabel htmlFor="city">City</InputLabel>
-                    <Select
-                      id="city"
-                      name="city"
-                      fullWidth
-                      value={formData.city}
-                      onChange={handleChange}
-                      required
-                    >
-                      {regionsAndCitiesData.regions
-                        .find((item) => item.name === formData.region)
-                        ?.cities.map((city) => (
-                          <MenuItem key={city} value={city}>
-                            {city}
-                          </MenuItem>
-                        ))}
-                    </Select>
-                  </StyledFormControl>
-                </Grid>
+              <StyledTextField
+                label="city"
+                name="city"
+                type="city"
+                fullWidth
+                value={formData.city}
+                onChange={handleChange}
+                required
+                variant="outlined"
+                color="primary"
+              />
+            </Grid>
                 <Grid item xs={4}>
-                  <StyledFormControl>
-                    <InputLabel htmlFor="woreda">Woreda</InputLabel>
-                    <Select
-                      id="woreda"
-                      name="woreda"
-                      fullWidth
-                      value={formData.woreda}
-                      onChange={handleChange}
-                      required
-                    >
-                      {woredaOptions.map((woreda) => (
-                        <MenuItem key={woreda} value={woreda}>
-                          {woreda}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </StyledFormControl>
-                </Grid>
+              <StyledTextField
+                label="woreda"
+                name="woreda"
+                type="woreda"
+                fullWidth
+                value={formData.woreda}
+                onChange={handleChange}
+                required
+                variant="outlined"
+                color="primary"
+              />
+            </Grid>
+                
               </Grid>
             </Grid>
 
@@ -338,7 +327,9 @@ const handleSubmit = async (e) => {
               />
             </Grid>
             <Grid item xs={12}>
-              <StyledButton type="submit">Submit</StyledButton>
+            <StyledButton type="submit" disabled={loading}>
+              {loading ? "Submitting..." : "Submit"}
+            </StyledButton>
             </Grid>
           </Grid>
         </form>
