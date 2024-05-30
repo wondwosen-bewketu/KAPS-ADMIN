@@ -1,6 +1,6 @@
-FROM node:18
+FROM node:18.15
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 CMD ["npm", "start"]
