@@ -362,3 +362,9 @@ npm install
 
 
 
+
+# Super Admin Login Credentials
+{
+  "phoneNumber": "0988227388",
+  "password": "12345678"
+}
